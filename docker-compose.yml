@@ -4,3 +4,5 @@ services:
     volumes:
       - ./solana:/solana
     working_dir: /solana
+    ports:
+      - 8899:8899
