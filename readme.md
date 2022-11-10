@@ -13,7 +13,7 @@ docker exec -it p7-solana-1 anchor build
 ```
 Once this is done, we need to extract the key that the smart contract has assigned itself and put it into the rust program. Use `anchor keys list` to list the smart contract keys.
 ```
-docker exec it p7-solana-1 anchor keys list
+docker exec -it p7-solana-1 anchor keys list
 ```
 Copy the key associated with the smart contract from that list and paste it into the rust macro at the top of `./solana/energy-trading/programs/<tic-tac-toe>/src/lib.rs`
 
