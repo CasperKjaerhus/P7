@@ -12,10 +12,12 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: 
-      image: projectserum/build:v0.25.0
-      ports:
-        - 8899:8899
+    container: projectserum/build:v0.25.0
+    services:
+      localnet:
+        image: solanalabs/solana:stable
+        ports:
+          - 8899:8899
     defaults:
       run:
         working-directory: ./solana/energy-trading
@@ -30,7 +32,7 @@ jobs:
       - name: Generate new keygen
         run: solana-keygen new --no-bip39-passphrase --force
       - name: Set solana target cluster to local
-        run: solana config set --url http://localhost:8899
+        run: solana config set --url http://localnet:8899
       - name: Check solana config
         run: solana config get
       - name: Install yarn dependencies
