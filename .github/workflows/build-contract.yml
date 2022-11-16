@@ -40,4 +40,4 @@ jobs:
       - name: Build
         run: anchor build
       - name: Run tests
-        run: anchor test
+        run: anchor test --provider.cluster localnet
