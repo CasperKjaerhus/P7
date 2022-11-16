@@ -14,7 +14,7 @@ jobs:
       localnet:
         image: solanalabs/solana:stable
         ports:
-          8899:8899
+          - 8899:8899
     defaults:
       run:
         working-directory: ./solana/energy-trading
