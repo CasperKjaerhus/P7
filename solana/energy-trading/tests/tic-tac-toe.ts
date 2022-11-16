@@ -11,8 +11,8 @@ describe("energy-trading", () => {
 
   it('setup game!', () => {
     const gameKeypair = anchor.web3.Keypair.generate();
-    const playerOne = program.provider.publicKey;
-    const playerTwo = anchor.web3.Keypair.generate();
+    const playerOne   = anchor.web3.Keypair.generate();
+    const playerTwo   = anchor.web3.Keypair.generate();
     console.log(gameKeypair);
     console.log(playerOne);
     console.log(playerTwo);
