@@ -12,7 +12,8 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: projectserum/build:v0.25.0
+    container: 
+      image: projectserum/build:v0.25.0
       ports:
         - 8899:8899
     defaults:
