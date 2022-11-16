@@ -10,6 +10,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container: projectserum/build:v0.25.0
+    services:
+      localnet:
+        image: solanalabs/solana:stable
+        ports:
+          8899:8899
     defaults:
       run:
         working-directory: ./solana/energy-trading
@@ -32,4 +37,4 @@ jobs:
       - name: Build
         run: anchor build
       - name: Run tests
-        run: anchor test
+        run: anchor test --skip-local-validator
