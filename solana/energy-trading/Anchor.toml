@@ -3,7 +3,6 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-tic_tac_toe = "DCFHJduxcaG6By7sy4M9kMnTuaUCMkgR6MgmX2cosyvi"
 energy_injection = "DrReEY58u59wdn223dBCfNMNXGbNcuWzS9o81WEAwnmA"
 
 [registry]
