@@ -17,7 +17,6 @@ type Transaction = {
 }
 
 // Make the Buyer and Seller arrays to properties of the class.
-newtype Demad = Num a => D a
 class Auction {
     sellers: Seller[];
     buyers: Buyer[];
