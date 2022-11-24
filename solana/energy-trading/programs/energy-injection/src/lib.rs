@@ -3,7 +3,7 @@ use std::mem::size_of;
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::system_program;
 
-declare_id!("DrReEY58u59wdn223dBCfNMNXGbNcuWzS9o81WEAwnmA");
+declare_id!("8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr");
 
 #[program]
 pub mod energy_injection {
