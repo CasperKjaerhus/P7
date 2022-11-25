@@ -1,84 +1,71 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
+import { PublicKey } from '@solana/web3.js';
 import { EnergyInjection } from "../target/types/energy_injection";
-import { assert, expect } from 'chai';
-
-
+import { expect } from 'chai';
 
 describe('Inject Energy', () => {
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
+
     const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
-    anchor.setProvider(anchor.AnchorProvider.env());
 
-    const amount = new anchor.BN(123)
-    const prosumer = anchor.web3.Keypair.generate();
+    
+    const airdropSolToKey = async (key: PublicKey, amount: number) => {
 
-    before(async () => {
+        const sig = await program.provider.connection.requestAirdrop(key, amount * anchor.web3.LAMPORTS_PER_SOL);
+        const blockhashLatest = await program.provider.connection.getLatestBlockhash();
 
-        /* Airdrop 100 SOL to prosumer */
-        const signature = await program.provider.connection.requestAirdrop(prosumer.publicKey, anchor.web3.LAMPORTS_PER_SOL * 100);
-        const latestBlockHash = await program.provider.connection.getLatestBlockhash();
+        return program.provider.connection.confirmTransaction({
+            blockhash: blockhashLatest.blockhash,
+            lastValidBlockHeight: blockhashLatest.lastValidBlockHeight,
+            signature: sig
+        });
+    }
 
-        await program.provider.connection.confirmTransaction({
-            blockhash: latestBlockHash.blockhash,
-            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-            signature: signature,
-          });
+    it('Create Smart Power Storage', async () => {
 
-        /* Initialise SPS */
+        const [smartpowerstoragePDA, _] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("smartpowerstorage")
+            ],
+            program.programId
+        );
+
+        await program.methods
+            .initSps()
+            .accounts({
+                initializer: provider.wallet.publicKey,
+                smartPowerStorage: smartpowerstoragePDA
+            })
+            .rpc();
         
-        // const [spsPDA, _] = await anchor.web3.PublicKey.findProgramAddress([Buffer.from('smartpowerstorage')], program.programId);
+        expect(((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh)).to.equal(0)
+    });
 
-        // const tx = await program.methods.initSps().accounts({
-        //     payer: prosumer.publicKey,
-        //     systemProgram: anchor.web3.SystemProgram.programId,
-        //     sps: spsPDA
-        // }).signers([
-        //     prosumer
-        // ]).rpc()
+    it('Inject Energy', async () => {
+        const [smartpowerstoragePDA, _] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("smartpowerstorage")
+            ],
+            program.programId
+        );
 
-        // const latestBlockHashtx = await program.provider.connection.getLatestBlockhash();
-        // await program.provider.connection.confirmTransaction({
-        //     blockhash: latestBlockHashtx.blockhash,
-        //     lastValidBlockHeight: latestBlockHashtx.lastValidBlockHeight,
-        //     signature: tx,
-        //   });
-      });
+        const prosumer = anchor.web3.Keypair.generate();
+        await airdropSolToKey(prosumer.publicKey, 10);
 
-    it('Recieve Token', async () => {
-        const [spsPDA, _] = await anchor.web3.PublicKey.findProgramAddress([Buffer.from('smartpowerstorage')], program.programId);
-
-        const signature = await program.methods
-            .sendinjection(amount)
+        await program.methods
+            .sendinjection(10)
             .accounts({
                 prosumer: prosumer.publicKey,
-                sps: spsPDA,
-                systemProgram: anchor.web3.SystemProgram.programId
-            }).signers([
-                prosumer
-            ])
+                smartPowerStorage: smartpowerstoragePDA
+            })
+            .signers([prosumer])
             .rpc();
 
-        const latestBlockHash = await program.provider.connection.getLatestBlockhash();
-        await program.provider.connection.confirmTransaction({
-            blockhash: latestBlockHash.blockhash,
-            lastValidBlockHeight: latestBlockHash.lastValidBlockHeight,
-            signature: signature,
-        });
+        expect((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh).to.equal(10);
 
-        const all = await program.account.sps.all();
-        console.log(all.length);
-        console.table(all);
-        const spsAccount = await program.account.sps.fetch(spsPDA);
-
-        assert.equal(spsAccount.kwhInStorage.toNumber(), 123);
-    });
-
-    it('Fail on Negative Energy', async() => {
-
-    });
-
-    it('Fail on non-verified account', async() => {
-
-    });
-
+    })
 });

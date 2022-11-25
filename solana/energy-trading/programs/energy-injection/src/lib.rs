@@ -1,7 +1,4 @@
-use std::mem::size_of;
-
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::system_program;
 
 declare_id!("8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr");
 
@@ -9,65 +6,46 @@ declare_id!("8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr");
 pub mod energy_injection {
     use super::*;
 
-    pub fn init_sps(ctx: Context<InitSPS>) -> Result<()> {
-        let sps = &mut ctx.accounts.sps;
-        sps.kwh_in_storage = 0;
+    pub fn init_sps(ctx: Context<InitializeSmartPowerStorage>) -> Result<()> {
+        let smart_power_storage = &mut ctx.accounts.smart_power_storage;
+        smart_power_storage.kwh = 0;
+        smart_power_storage.bump = *ctx.bumps.get("smart_power_storage").unwrap();
 
         Ok(())
     }
 
-    pub fn sendinjection(ctx: Context<SendInjection>, amount: u64) -> Result<()> {
-        let _prosumer: &Signer = &ctx.accounts.prosumer;
-
-        // TODO: Check if prosumer is even allowed to deposit 
-
-        
-        // TODO: Check if amount can be deposited
-
-        ctx.accounts.sps.kwh_in_storage += amount;
-        
-        // TODO: Make a "hashmap" that controls how many energy tokens a prosumer (pubkey) has.
-
+    pub fn sendinjection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
+        ctx.accounts.smart_power_storage.kwh += amount;
         Ok(())
     }
 }
 
 #[account]
-pub struct SPS {
-    pub kwh_in_storage: u64,
+pub struct SmartPowerStorage {
+    kwh: u16,
+    bump: u8,
 }
 
 #[derive(Accounts)]
-pub struct InitSPS<'info> {
-
+pub struct InitializeSmartPowerStorage<'info> {
     #[account(mut)]
-    pub payer: Signer<'info>,
-
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    #[account(address = system_program::ID)]
-    pub system_program: AccountInfo<'info>,
-
+    pub initializer: Signer<'info>,
     #[account(
         init,
-        payer = payer,
-        seeds = [b"smartpowerstorage"],
-        bump,
-        space = size_of::<SPS>() + 8,
+        payer = initializer,
+        space = 11, 
+        seeds = [b"smartpowerstorage"], bump
     )]
-    pub sps: Account<'info, SPS>, 
+    pub smart_power_storage: Account<'info, SmartPowerStorage>,
+    pub system_program: Program<'info, System>,
 }
 
-
-// SendInjection struct is the context that is provided to sendinjection() upon usage
 #[derive(Accounts)]
-pub struct SendInjection<'info> {
-    #[account(mut)]
+pub struct InjectPowerToStorage<'info> {
     pub prosumer: Signer<'info>,
-
-    #[account(mut)]
-    pub sps: Account<'info, SPS>, 
-
-    /// CHECK: This is not dangerous because we don't read or write from this account
-    #[account(address = system_program::ID)]
-    pub system_program: AccountInfo<'info>,
+    #[account(
+        mut, 
+        seeds = [b"smartpowerstorage"], bump = smart_power_storage.bump
+    )]
+    pub smart_power_storage: Account<'info, SmartPowerStorage>,
 }
