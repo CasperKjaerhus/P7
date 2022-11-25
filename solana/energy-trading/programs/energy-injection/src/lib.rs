@@ -33,7 +33,7 @@ pub struct InitializeSmartPowerStorage<'info> {
     #[account(
         init,
         payer = initializer,
-        space = 11, 
+        space = 8 + 2 + 1, 
         seeds = [b"smartpowerstorage"], bump
     )]
     pub smart_power_storage: Account<'info, SmartPowerStorage>,
