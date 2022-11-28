@@ -82,7 +82,7 @@ class Auction {
         transactions.map((t) => this._postTransaction(t));
     }
 
-    // Stub for now, should posting a transaction to the blockchain
+    // Stub for now, should handle posting a single transaction to the blockchain
     private _postTransaction(transaction: Transaction): void {
         console.log(transaction);
     }
