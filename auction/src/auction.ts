@@ -27,8 +27,8 @@ class Auction {
     }
 
     public auction(): void {
-        this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price);
-        sellers.sort((seller1, seller2) => seller2.supply - seller1.supply);
+        this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price); // Highest bid wins
+        sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Highest supply gets to sell first (re-sorted after each selling part of supply)
 
         let transactions: Transaction[] = [];
         
