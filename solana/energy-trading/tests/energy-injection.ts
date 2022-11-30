@@ -15,6 +15,9 @@ describe('Inject Energy', () => {
     const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
     let smartpowerstoragePDA;
+    let energytokenstoragePDA;
+
+    const prosumer = anchor.web3.Keypair.generate();
     
     const airdropSolToKey = async (key: PublicKey, amount: number) => {
 
@@ -36,7 +39,19 @@ describe('Inject Energy', () => {
             ],
             program.programId
         );
+
+        [energytokenstoragePDA] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                prosumer.publicKey.toBuffer()
+            ],
+            program.programId
+        );
     })
+
+
+
 
     it('Create Smart Power Storage', async () => {
 
@@ -59,37 +74,62 @@ describe('Inject Energy', () => {
         expect(((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh)).to.equal(0)
     });
 
+    it('Create Energy Token Storage', async () => {
+        
+        const [energytokenstoragePDA, _] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                prosumer.publicKey.toBuffer()
+            ],
+            program.programId
+        );
+
+        await airdropSolToKey(prosumer.publicKey, 10);
+        
+        await program.methods
+            .createEnergyTokenStorage()
+            .accounts({
+                prosumer: prosumer.publicKey,
+                energyTokenStorage: energytokenstoragePDA
+            })
+            .signers([prosumer])
+            .rpc();
+        
+        expect(((await program.account.energyTokenStorage.fetch(energytokenstoragePDA)).noTokens)).to.equal(0)
+    })
+
     it('Inject Energy', async () => {
 
         const currentKwh = (await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh;
 
-        const prosumer = anchor.web3.Keypair.generate();
         await airdropSolToKey(prosumer.publicKey, 10);
         
         await program.methods
             .sendinjection(10)
             .accounts({
                 prosumer: prosumer.publicKey,
-                smartPowerStorage: smartpowerstoragePDA
+                smartPowerStorage: smartpowerstoragePDA,
+                energyTokenStorage: energytokenstoragePDA,
             })
             .signers([prosumer])
             .rpc();
 
         expect((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh).to.equal(currentKwh+10);
+        expect((await program.account.energyTokenStorage.fetch(energytokenstoragePDA)).noTokens).to.equal(currentKwh+10);
     })
 
     it('Fail on negative amount', async () => {
         
         const currentKwh = (await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh;
 
-        const prosumer = anchor.web3.Keypair.generate();
         await airdropSolToKey(prosumer.publicKey, 10);
         
             expect(program.methods
                 .sendinjection(-5)
                 .accounts({
                     prosumer: prosumer.publicKey,
-                    smartPowerStorage: smartpowerstoragePDA
+                    smartPowerStorage: smartpowerstoragePDA,
                 })
                 .signers([prosumer])
                 .rpc()).to.be.rejectedWith(RangeError);
@@ -97,5 +137,4 @@ describe('Inject Energy', () => {
 
         expect((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh).to.equal(currentKwh);
     })
-
 });
