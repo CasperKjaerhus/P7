@@ -16,69 +16,81 @@ type Transaction = {
     price: number;
 }
 
-// Make the Buyer and Seller arrays to properties of the class.
 class Auction {
-    sellers: Seller[];
-    buyers: Buyer[];
+    private buyers: Buyer[];
+
+    private sellers: Seller[];
     
-    constructor(sellers: Seller[], buyers: Buyer[]){
+    public constructor(sellers: Seller[], buyers: Buyer[]){
       this.sellers = sellers;
       this.buyers = buyers;
     }
 
-    solve(): void {
-        this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price);
-        sellers.sort((seller1, seller2) => seller2.supply - seller1.supply);
-
-        let totalSupply = sellers.reduce((acc, seller) => { return acc + seller.supply }, 0);
+    public auction(): void {
+        this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price); // Highest bid wins
+        sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Highest supply gets to sell first (re-sorted after each selling part of supply)
 
         let transactions: Transaction[] = [];
-        let i = 0;
-        while (i + 1 < this.buyers.length && totalSupply > 0) { // Need to handle corner cases
-            let bid = this.buyers[i];
-            totalSupply = sellers.reduce((acc, seller) => { return acc + seller.supply }, 0);
-            transactions = this.serveWinner(bid, this.buyers[i+1].price);
-            this.handleTransactions(transactions);
-            this.buyers.splice(i, 1);
+        
+        // Main part of the auction - we iteratively serve the highest bidder
+        while (1 < this.buyers.length && 0 < sellers.length) { // Need to handle corner cases
+            let bid = this.buyers[0];
+            transactions.concat(this._serveWinner(bid, this.buyers[1].price)); //if we have atleast 2 buyers
+            if (bid.demand == 0)
+                this.buyers.splice(0, 1);
         }
+
+        // Special case - we have excess supply and exactly one buyer to serve.
+        if (this.buyers.length == 1 && 0 < sellers.length) {
+            transactions.concat(this._serveWinner(this.buyers[0], this.buyers[0].price));
+            if (this.buyers[0].demand == 0) // Only remove the last bidder, if their entire demand has been met.
+                this.buyers.splice(0,1);
+        }
+        
+        sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
+        this.buyers.map((buyer) => console.log(buyer.account, buyer.demand)); // Log bidders with un-met demand
+
+
+        this._handleTransactions(transactions);
+        
         return;
     }
 
-    serveWinner(bid: Buyer, winnerPrice: number): Transaction[] {
+    private _serveWinner(bid: Buyer, winnerPrice: number): Transaction[] {
         let transactions: Transaction[] = [];
-        let i = 0;
-        while (bid.demand > 0) {
 
-            if (bid.demand >= sellers[i].supply) {
-                bid.demand -= sellers[i].supply;
-                let transaction: Transaction = { from: sellers[i].account, to: bid.account, energy: sellers[i].supply, price: winnerPrice }; //Fix price.
+        while (bid.demand > 0 && 0 < this.sellers.length) {
 
-                sellers.splice(i, 1);
-                transactions.push(transaction);
-                i++;
+            if (bid.demand >= sellers[0].supply) {
+                bid.demand -= sellers[0].supply; //Consume entire seller-supply
+                transactions.push({ from: sellers[0].account, to: bid.account, energy: sellers[0].supply, price: (winnerPrice+bid.price)/2 }); 
+
+                sellers.splice(0,1); //Remove seller, as no supply left
 
             } else {
-                sellers[i].supply -= bid.demand;
-                let transaction: Transaction = { from: sellers[i].account, to: bid.account, energy: bid.demand, price: winnerPrice }; //Fix price.
-
+                sellers[0].supply -= bid.demand;  //Bid is met in its entirety
+                transactions.push({ from: sellers[0].account, to: bid.account, energy: bid.demand, price: (winnerPrice+bid.price)/2 });
+                
+                sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Sort sellers again, as the supply has changed
                 bid.demand = 0; //To exit while-loop.
-                transactions.push(transaction);
             }
         }
         return transactions;
     }
 
-    handleTransactions(transactions: Transaction[]): void {
-        transactions.map((t) => this.postTransaction(t));
+    private _handleTransactions(transactions: Transaction[]): void {
+        transactions.map((t) => this._postTransaction(t));
     }
 
-    postTransaction(transaction: Transaction): void {
+    // Stub for now, should handle posting a single transaction to the blockchain
+    private _postTransaction(transaction: Transaction): void {
         console.log(transaction);
     }
 }
 
-let bids: Buyer[] = [{ demand: 2, price: 2, account: "speel" }, { demand: 2, price: 3, account: "long john" }, { demand: 2, price: 6, account: "dino" }];
-let sellers: Seller[] = [{ supply: 3, account: "cleth" }, { supply: 10, account: "philly" }];
+let bids: Buyer[] = [{ demand: 3, price: 2, account: "speel" }, { demand: 6, price: 3, account: "long john" }, { demand: 20, price: 6, account: "dino" }];
+let sellers: Seller[] = [{ supply: 4, account: "cleth" }, { supply: 10, account: "philly" }];
 let auction: Auction = new Auction(sellers, bids);
-auction.solve()
+auction.auction()
+
 
