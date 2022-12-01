@@ -6,7 +6,7 @@
     "build": "tsc",
     "swagger": "tsoa spec",
     "dev": "nodemon",
-    "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'"
+    "test": "mocha -r ts-node/register 'tests/**/*.ts'"
   },
   "nodemonConfig": {
     "watch": [
