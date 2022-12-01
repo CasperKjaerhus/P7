@@ -1,0 +1,25 @@
+name: Build and Test 2nd Price Auction
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./auction/
+    steps:
+      - uses: actions/checkout@v3
+        uses: actions/setup-node@v3
+        with:
+          node-version: 19
+      - run: npm install -g typescript chai mocha ts-node @types/chai @types/mocha --save-dev 
+      - name: Test
+        run: npm test 
