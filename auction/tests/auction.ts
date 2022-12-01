@@ -61,6 +61,54 @@ describe('Auction tests', () => {
     expect(result).to.deep.equal(expectedTransaction);
     expect(result.length).to.be.equal(0);
   });
+  
+  it('Validate input, no transactions on negative price', () => {
+    const bid: Buyer[] = [{ demand: 3, price: -2, account: "speel" }];
+    const sellers: Seller[] = [{ supply: 2, account: "cleth" }];
+    const instance: Auction = new Auction(sellers, bid);
+
+    const expectedTransaction: Transaction[] = [];
+    const result = instance.auction();
+
+    expect(result).to.deep.equal(expectedTransaction);
+    expect(result.length).to.be.equal(0);
+  });
+
+  it('Validate input, no transactions on negative demand', () => {
+    const bid: Buyer[] = [{ demand: -3, price: 2, account: "speel" }];
+    const sellers: Seller[] = [{ supply: 2, account: "cleth" }];
+    const instance: Auction = new Auction(sellers, bid);
+
+    const expectedTransaction: Transaction[] = [];
+    const result = instance.auction();
+
+    expect(result).to.deep.equal(expectedTransaction);
+    expect(result.length).to.be.equal(0);
+  });
+  
+  it('Validate input, no transactions on negative supply', () => {
+    const bid: Buyer[] = [{ demand: 3, price: 2, account: "speel" }];
+    const sellers: Seller[] = [{ supply: -2, account: "cleth" }];
+    const instance: Auction = new Auction(sellers, bid);
+
+    const expectedTransaction: Transaction[] = [];
+    const result = instance.auction();
+
+    expect(result).to.deep.equal(expectedTransaction);
+    expect(result.length).to.be.equal(0);
+  });
+  
+  it('Validate input, no transactions on negative demand, price and supply', () => {
+    const bid: Buyer[] = [{ demand: -3, price: -2, account: "speel" }];
+    const sellers: Seller[] = [{ supply: -2, account: "cleth" }];
+    const instance: Auction = new Auction(sellers, bid);
+
+    const expectedTransaction: Transaction[] = [];
+    const result = instance.auction();
+
+    expect(result).to.deep.equal(expectedTransaction);
+    expect(result.length).to.be.equal(0);
+  });
 });
 
 // Sorting
