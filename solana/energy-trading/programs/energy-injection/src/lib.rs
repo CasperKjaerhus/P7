@@ -1,6 +1,9 @@
 use anchor_lang::prelude::*;
+use errors::EnergyInjectionErrors;
 
-declare_id!("CgQt6yMt1snovHpCXe3Hh5Rh3rXX8SxnUNB1CAyLsCjc");
+mod errors;
+
+declare_id!("8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr");
 
 #[program]
 pub mod energy_injection {
@@ -17,6 +20,7 @@ pub mod energy_injection {
     pub fn create_energy_token_storage(ctx: Context<CreateEnergyTokenStorage>) -> Result<()> {
         let energy_token_storage: &mut Account<EnergyTokenStorage> = &mut ctx.accounts.energy_token_storage;
         energy_token_storage.no_tokens = 0;
+        energy_token_storage.tokens_for_sale = 0;
         energy_token_storage.bump = *ctx.bumps.get("energy_token_storage").unwrap();
 
         Ok(())
@@ -25,6 +29,18 @@ pub mod energy_injection {
     pub fn sendinjection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
         ctx.accounts.smart_power_storage.kwh += amount;
         ctx.accounts.energy_token_storage.no_tokens += amount;
+        ctx.accounts.energy_token_storage.tokens_for_sale += amount;
+
+        Ok(())
+    }
+
+    pub fn surrender(ctx: Context<SurrenderContext>, amount: u16) -> Result<()> {
+        // Check if user has enough energy tokens
+        require!(ctx.accounts.energy_token_storage.no_tokens >= amount, EnergyInjectionErrors::NotEnoughEnergyTokens);
+
+        // Subtract Tokens from account
+        ctx.accounts.energy_token_storage.no_tokens -= amount;
+
         Ok(())
     }
 
@@ -39,6 +55,7 @@ pub struct SmartPowerStorage {
 #[account]
 pub struct EnergyTokenStorage {
     no_tokens: u16,
+    tokens_for_sale: u16,
     bump: u8,
 }
 
@@ -63,7 +80,7 @@ pub struct CreateEnergyTokenStorage<'info> {
     #[account(
         init_if_needed,
         payer = prosumer,
-        space = 8 + 2 + 1, 
+        space = 8 + 2 + 2 + 1, 
         seeds = [b"energytokenstorage", prosumer.key().as_ref()], bump
     )]
     pub energy_token_storage: Account<'info, EnergyTokenStorage>,
@@ -86,3 +103,19 @@ pub struct InjectPowerToStorage<'info> {
     pub energy_token_storage: Account<'info, EnergyTokenStorage>,
 }
 
+#[derive(Accounts)]
+pub struct SurrenderContext<'info> {
+    #[account(mut)]
+    pub consumer: Signer<'info>,
+    #[account(
+        mut, 
+        seeds = [b"smartpowerstorage"], bump = smart_power_storage.bump
+    )]
+    pub smart_power_storage: Account<'info, SmartPowerStorage>,
+    #[account(
+        mut, 
+        seeds = [b"energytokenstorage", consumer.key().as_ref()], bump = energy_token_storage.bump
+    )]
+    pub energy_token_storage: Account<'info, EnergyTokenStorage>,
+    pub system_program: Program<'info, System>,
+}

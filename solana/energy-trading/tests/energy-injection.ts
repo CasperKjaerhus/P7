@@ -1,8 +1,8 @@
 import * as anchor from "@project-serum/anchor";
-import { Program } from "@project-serum/anchor";
+import { AnchorError, Program } from "@project-serum/anchor";
 import { PublicKey } from '@solana/web3.js';
 import { EnergyInjection } from "../target/types/energy_injection";
-import { assert, expect } from 'chai';
+import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 
@@ -76,7 +76,7 @@ describe('Inject Energy', () => {
 
     it('Create Energy Token Storage', async () => {
         
-        const [energytokenstoragePDA, _] = await PublicKey
+        const [energytokenstoragePDA] = await PublicKey
         .findProgramAddress(
             [
                 anchor.utils.bytes.utf8.encode("energytokenstorage"),
@@ -96,12 +96,12 @@ describe('Inject Energy', () => {
             .signers([prosumer])
             .rpc();
         
-        expect(((await program.account.energyTokenStorage.fetch(energytokenstoragePDA)).noTokens)).to.equal(0)
+        await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA))).to.eventually.have.property("noTokens").to.be.equal(0)
     })
 
     it('Inject Energy', async () => {
 
-        const currentKwh = (await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh;
+        const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
 
         await airdropSolToKey(prosumer.publicKey, 10);
         
@@ -115,26 +115,79 @@ describe('Inject Energy', () => {
             .signers([prosumer])
             .rpc();
 
-        expect((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh).to.equal(currentKwh+10);
-        expect((await program.account.energyTokenStorage.fetch(energytokenstoragePDA)).noTokens).to.equal(currentKwh+10);
+        await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
+            .to.eventually.have.property("kwh")
+            .to.be.equal(currentKwh+10);
+
+        await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
+            .to.eventually.have.property("noTokens")
+            .to.be.equal(currentKwh+10);
     })
 
     it('Fail on negative amount', async () => {
         
-        const currentKwh = (await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh;
+        const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
 
         await airdropSolToKey(prosumer.publicKey, 10);
         
-            expect(program.methods
+        await expect(
+            program.methods
                 .sendinjection(-5)
                 .accounts({
                     prosumer: prosumer.publicKey,
                     smartPowerStorage: smartpowerstoragePDA,
+                    energyTokenStorage: energytokenstoragePDA,
                 })
                 .signers([prosumer])
-                .rpc()).to.be.rejectedWith(RangeError);
+                .rpc())
+            .to.be.rejectedWith(RangeError);
         
 
-        expect((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh).to.equal(currentKwh);
+        await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
+            .to.eventually.have.property("kwh")
+            .to.be.equal(currentKwh);
+    });
+
+    it('Surrender currency', async () => {
+        const {noTokens} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
+
+
+    })
+
+    it('Surrender should fail if not enough', async () => {
+
+        const prosumer2 = anchor.web3.Keypair.generate();
+
+        const [prosomer2EnergyStorage] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                prosumer2.publicKey.toBuffer()
+            ],
+            program.programId
+        );
+
+        await airdropSolToKey(prosumer2.publicKey, 10);
+        
+        await program.methods
+            .createEnergyTokenStorage()
+            .accounts({
+                prosumer: prosumer2.publicKey,
+                energyTokenStorage: prosomer2EnergyStorage
+            })
+            .signers([prosumer2])
+            .rpc();
+
+        await expect(program.account.energyTokenStorage.fetch(prosomer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
+
+        await expect(program.methods
+            .surrender(5)
+            .accounts({
+                consumer: prosumer2.publicKey,
+                energyTokenStorage: prosomer2EnergyStorage,
+                smartPowerStorage: smartpowerstoragePDA
+            })
+            .signers([prosumer2])
+            .rpc()).to.be.rejectedWith("You do not have enough tokens");
     })
 });
