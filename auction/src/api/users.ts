@@ -3,14 +3,14 @@ export interface User {
 }
 
 export interface ProsumerInj extends User {
-    energySupplyInWatts: number
+    energySupply: number
 }
 
 export interface ConsumerBid extends User {
-    demandInWatts: number
+    demand: number
     price: number
 }
 
 export interface ConsumerUtil extends User {
-    energyTokens: string[]
+    energyTokenStorage: string
 }

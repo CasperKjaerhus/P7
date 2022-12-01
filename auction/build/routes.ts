@@ -3,7 +3,7 @@
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { Controller, ValidationService, FieldErrors, ValidateError, TsoaRoute, HttpStatusCodeLiteral, TsoaResponse, fetchMiddlewares } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { APIController } from './../src/users/usersController';
+import { APIController } from './../src/api/apiController';
 import type { RequestHandler } from 'express';
 import * as express from 'express';
 
@@ -26,6 +26,8 @@ export function RegisterRoutes(app: express.Router) {
 
             function APIController_injectEnergy(request: any, response: any, next: any) {
             const args = {
+                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
+                    energySupply: {"in":"query","name":"energySupply","required":true,"dataType":"double"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -50,6 +52,9 @@ export function RegisterRoutes(app: express.Router) {
 
             function APIController_bidOnEnergy(request: any, response: any, next: any) {
             const args = {
+                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
+                    demand: {"in":"query","name":"demand","required":true,"dataType":"double"},
+                    price: {"in":"query","name":"price","required":true,"dataType":"double"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -74,6 +79,8 @@ export function RegisterRoutes(app: express.Router) {
 
             function APIController_utiliseEnergy(request: any, response: any, next: any) {
             const args = {
+                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
+                    energyTokenStorage: {"in":"query","name":"energyTokenStorage","required":true,"dataType":"string"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
