@@ -29,10 +29,12 @@ export class Auction {
           this.sellers = [];
           this.buyers = [];
       }
+
+      this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price); // Highest bid wins
+      this.sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Highest supply gets to sell first (re-sorted after each selling part of supply)
     }
 
     public auction(): Transaction[] {
-        this._sort();
         let transactions: Transaction[] = [];
         
         // Main part of the auction - we iteratively serve the highest bidder
@@ -61,14 +63,9 @@ export class Auction {
     }
     
     private _inputValid(sellers: Seller[], buyers: Buyer[]): boolean {
-        const sellerBool: boolean = sellers.every((seller) => seller.supply > 0);
-        const buyerBool: boolean = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0);
+        const sellerBool: boolean = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
+        const buyerBool: boolean = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
         return sellerBool && buyerBool;
-    }
-
-    private _sort(): void { 
-        this.buyers.sort((buyer1, buyer2) => buyer2.price - buyer1.price); // Highest bid wins
-        this.sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Highest supply gets to sell first (re-sorted after each selling part of supply)
     }
 
     private _serveWinner(bid: Buyer, winnerPrice: number): Transaction[] {
