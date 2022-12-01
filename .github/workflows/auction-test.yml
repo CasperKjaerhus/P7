@@ -17,9 +17,9 @@ jobs:
         working-directory: ./auction/
     steps:
       - uses: actions/checkout@v3
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: 19
       - run: npm install -g typescript chai mocha ts-node @types/chai @types/mocha --save-dev 
       - name: Test
-        run: npm test 
+      - run: npm test 
