@@ -54,8 +54,8 @@ export class Auction {
                 this.buyers.shift();
         }
         
-        this.sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
-        this.buyers.map((buyer) => console.log(buyer.account, buyer.demand)); // Log bidders with un-met demand
+        // this.sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
+        // this.buyers.map((buyer) => console.log(buyer.account, buyer.demand)); // Log bidders with un-met demand
 
         this._handleTransactions(transactions);
 
@@ -64,7 +64,7 @@ export class Auction {
     
     private _inputValid(sellers: Seller[], buyers: Buyer[]): boolean {
         const sellerBool = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
-        const buyerBool: boolean = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
+        const buyerBool = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
         return sellerBool && buyerBool;
     }
 
@@ -77,7 +77,7 @@ export class Auction {
                 bid.demand -= this.sellers[0].supply; //Consume entire seller-supply
                 transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: (winnerPrice+bid.price)/2 }); 
 
-                this.sellers.splice(0,1); //Remove seller, as no supply left
+                this.sellers.shift(); //Remove seller, as no supply left
 
             } else {
                 this.sellers[0].supply -= bid.demand;  //Bid is met in its entirety

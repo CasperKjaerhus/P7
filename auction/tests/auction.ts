@@ -1,6 +1,6 @@
 import { Auction, Buyer, Seller, Transaction } from '../src/auction';
 import { expect } from 'chai';
-import {describe} from 'mocha';
+import { describe } from 'mocha';
 
 describe('Auction tests', () => {
   const testCases= [
