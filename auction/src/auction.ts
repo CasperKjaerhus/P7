@@ -63,7 +63,7 @@ export class Auction {
     }
     
     private _inputValid(sellers: Seller[], buyers: Buyer[]): boolean {
-        const sellerBool: boolean = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
+        const sellerBool = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
         const buyerBool: boolean = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
         return sellerBool && buyerBool;
     }
