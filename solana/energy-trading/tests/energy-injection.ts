@@ -50,7 +50,7 @@ describe('Inject Energy', () => {
             ],
             program.programId
         );
-    })
+    });
 
     it('Create Smart Power Storage', async () => {
         const [smartpowerstoragePDA] = await PublicKey
