@@ -203,7 +203,7 @@ describe('Inject Energy', () => {
             .utilizeEnergy(5)
             .accounts({
                 consumer: prosumer2.publicKey,
-                energyTokenStorage: prosomer2EnergyStorage,
+                energyTokenStorage: prosumer2EnergyStorage,
                 smartPowerStorage: smartpowerstoragePDA
             })
             .signers([prosumer2])
