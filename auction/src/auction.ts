@@ -51,7 +51,7 @@ export class Auction {
             transactions = transactions.concat(this._serveWinner(this.buyers[0], this.buyers[0].price));
 
             if (this.buyers[0].demand == 0) // Only remove the last bidder, if their entire demand has been met.
-                this.buyers.splice(0,1);
+                this.buyers.shift();
         }
         
         this.sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
