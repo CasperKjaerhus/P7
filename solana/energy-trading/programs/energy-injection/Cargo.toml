@@ -2,7 +2,7 @@
 name = "energy-injection"
 version = "0.1.0"
 description = "Created with Anchor"
-edition = "2021"
+edition = "2022"
 
 [lib]
 crate-type = ["cdylib", "lib"]
