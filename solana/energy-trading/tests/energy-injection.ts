@@ -197,7 +197,7 @@ describe('Inject Energy', () => {
             .signers([prosumer2])
             .rpc();
 
-        await expect(program.account.energyTokenStorage.fetch(prosomer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
+        await expect(program.account.energyTokenStorage.fetch(prosumer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
 
         await expect(program.methods
             .utilizeEnergy(5)
