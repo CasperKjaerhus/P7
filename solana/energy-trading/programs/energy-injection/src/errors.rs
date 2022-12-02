@@ -5,4 +5,6 @@ use anchor_lang::prelude::*;
 pub enum EnergyInjectionErrors {
     #[msg("You do not have enough tokens")]
     NotEnoughEnergyTokens,
+    #[msg("The Smart Power Storage is empty!")]
+    SmartPowerStorageEmpty
 }

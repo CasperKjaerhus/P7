@@ -26,7 +26,8 @@ pub mod energy_injection {
         Ok(())
     }
 
-    pub fn sendinjection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
+    pub fn send_injection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
+
         ctx.accounts.smart_power_storage.kwh += amount;
         ctx.accounts.energy_token_storage.no_tokens += amount;
         ctx.accounts.energy_token_storage.tokens_for_sale += amount;
@@ -34,12 +35,16 @@ pub mod energy_injection {
         Ok(())
     }
 
-    pub fn surrender(ctx: Context<SurrenderContext>, amount: u16) -> Result<()> {
+    pub fn utilize_energy(ctx: Context<UtilizeEnergyContext>, amount: u16) -> Result<()> {
         // Check if user has enough energy tokens
         require!(ctx.accounts.energy_token_storage.no_tokens >= amount, EnergyInjectionErrors::NotEnoughEnergyTokens);
 
-        // Subtract Tokens from account
+        // Check if smart power storage has enough energy
+        require!(ctx.accounts.smart_power_storage.kwh >= amount, EnergyInjectionErrors::SmartPowerStorageEmpty);
+
+        // Subtract Tokens from account and sps
         ctx.accounts.energy_token_storage.no_tokens -= amount;
+        ctx.accounts.smart_power_storage.kwh -= amount;
 
         Ok(())
     }
@@ -64,7 +69,7 @@ pub struct InitializeSmartPowerStorage<'info> {
     #[account(mut)]
     pub initializer: Signer<'info>,
     #[account(
-        init_if_needed,
+        init,
         payer = initializer,
         space = 8 + 2 + 1, 
         seeds = [b"smartpowerstorage"], bump
@@ -78,7 +83,7 @@ pub struct CreateEnergyTokenStorage<'info> {
     #[account(mut)]
     pub prosumer: Signer<'info>,
     #[account(
-        init_if_needed,
+        init,
         payer = prosumer,
         space = 8 + 2 + 2 + 1, 
         seeds = [b"energytokenstorage", prosumer.key().as_ref()], bump
@@ -104,7 +109,7 @@ pub struct InjectPowerToStorage<'info> {
 }
 
 #[derive(Accounts)]
-pub struct SurrenderContext<'info> {
+pub struct UtilizeEnergyContext<'info> {
     #[account(mut)]
     pub consumer: Signer<'info>,
     #[account(

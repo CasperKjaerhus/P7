@@ -109,7 +109,7 @@ describe('Inject Energy', () => {
         await airdropSolToKey(prosumer.publicKey, 10);
         
         await program.methods
-            .sendinjection(10)
+            .sendInjection(10)
             .accounts({
                 prosumer: prosumer.publicKey,
                 smartPowerStorage: smartpowerstoragePDA,
@@ -135,7 +135,7 @@ describe('Inject Energy', () => {
         
         await expect(
             program.methods
-                .sendinjection(-5)
+                .sendInjection(-5)
                 .accounts({
                     prosumer: prosumer.publicKey,
                     smartPowerStorage: smartpowerstoragePDA,
@@ -151,13 +151,14 @@ describe('Inject Energy', () => {
             .to.be.equal(currentKwh);
     });
 
-    it('Surrender currency', async () => {
+    it('Utilize energy', async () => {
         const {noTokens} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
 
+        
 
     })
 
-    it('Surrender should fail if not enough', async () => {
+    it('Utilize should fail if not enough', async () => {
 
         const prosumer2 = anchor.web3.Keypair.generate();
 
@@ -184,7 +185,7 @@ describe('Inject Energy', () => {
         await expect(program.account.energyTokenStorage.fetch(prosomer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
 
         await expect(program.methods
-            .surrender(5)
+            .utilizeEnergy(5)
             .accounts({
                 consumer: prosumer2.publicKey,
                 energyTokenStorage: prosomer2EnergyStorage,
