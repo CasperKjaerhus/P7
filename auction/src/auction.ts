@@ -43,7 +43,7 @@ export class Auction {
             transactions = transactions.concat(this._serveWinner(bid, this.buyers[1].price)); //if we have atleast 2 buyers
             
             if (bid.demand == 0)
-                this.buyers.splice(0, 1);
+                this.buyers.shift(); // Remove buyer since demand has been met.
         }
 
         // Special case - we have excess supply and exactly one buyer to serve.
