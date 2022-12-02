@@ -46,6 +46,11 @@ pub mod energy_injection {
         ctx.accounts.energy_token_storage.no_tokens -= amount;
         ctx.accounts.smart_power_storage.kwh -= amount;
 
+        // If for_sale is higher than no_tokens, set for_sale to no_tokens.
+        if ctx.accounts.energy_token_storage.tokens_for_sale > ctx.accounts.energy_token_storage.no_tokens {
+            ctx.accounts.energy_token_storage.tokens_for_sale = ctx.accounts.energy_token_storage.no_tokens;   
+        }
+
         Ok(())
     }
 

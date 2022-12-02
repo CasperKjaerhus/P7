@@ -9,13 +9,15 @@ import chaiAsPromised from "chai-as-promised";
 chai.use(chaiAsPromised);
 
 describe('Inject Energy', () => {
+    // Get the solana configuration (localnet)
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
     const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
-    let smartpowerstoragePDA: anchor.Address;
-    let energytokenstoragePDA: anchor.Address;
+    // PDA's are retrieved during before()
+    let smartpowerstoragePDA: anchor.web3.PublicKey;
+    let energytokenstoragePDA: anchor.web3.PublicKey;
 
     const prosumer = anchor.web3.Keypair.generate();
     
@@ -49,9 +51,6 @@ describe('Inject Energy', () => {
             program.programId
         );
     })
-
-
-
 
     it('Create Smart Power Storage', async () => {
         const [smartpowerstoragePDA] = await PublicKey
@@ -124,7 +123,7 @@ describe('Inject Energy', () => {
 
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
             .to.eventually.have.property("noTokens")
-            .to.be.equal(currentKwh+10);
+            .to.be.equal(10);
     })
 
     it('Fail on negative amount', async () => {
@@ -152,9 +151,25 @@ describe('Inject Energy', () => {
     });
 
     it('Utilize energy', async () => {
-        const {noTokens} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
-
+        const {noTokens, tokensForSale} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
         
+        await program.methods
+            .utilizeEnergy(5)
+            .accounts({
+                consumer: prosumer.publicKey,
+                energyTokenStorage: energytokenstoragePDA,
+                smartPowerStorage: smartpowerstoragePDA,
+            })
+            .signers([prosumer])
+            .rpc();
+        
+        await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
+            .to.eventually.have.property("noTokens")
+            .to.be.equal(noTokens-5);
+        
+        await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
+            .to.eventually.have.property("tokensForSale")
+            .to.be.equal(tokensForSale-5);
 
     })
 
