@@ -1,5 +1,5 @@
 import * as anchor from "@project-serum/anchor";
-import { AnchorError, Program } from "@project-serum/anchor";
+import { Program } from "@project-serum/anchor";
 import { PublicKey } from '@solana/web3.js';
 import { EnergyInjection } from "../target/types/energy_injection";
 import { expect } from 'chai';
@@ -14,8 +14,8 @@ describe('Inject Energy', () => {
 
     const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
-    let smartpowerstoragePDA;
-    let energytokenstoragePDA;
+    let smartpowerstoragePDA: anchor.Address;
+    let energytokenstoragePDA: anchor.Address;
 
     const prosumer = anchor.web3.Keypair.generate();
     
@@ -54,8 +54,7 @@ describe('Inject Energy', () => {
 
 
     it('Create Smart Power Storage', async () => {
-
-        const [smartpowerstoragePDA, _] = await PublicKey
+        const [smartpowerstoragePDA] = await PublicKey
         .findProgramAddress(
             [
                 anchor.utils.bytes.utf8.encode("smartpowerstorage")
@@ -71,7 +70,9 @@ describe('Inject Energy', () => {
             })
             .rpc();
         
-        expect(((await program.account.smartPowerStorage.fetch(smartpowerstoragePDA)).kwh)).to.equal(0)
+        await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
+            .to.eventually.have.property("kwh")
+            .to.be.equal(0)
     });
 
     it('Create Energy Token Storage', async () => {
@@ -96,7 +97,9 @@ describe('Inject Energy', () => {
             .signers([prosumer])
             .rpc();
         
-        await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA))).to.eventually.have.property("noTokens").to.be.equal(0)
+        await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA)))
+            .to.eventually.have.property("noTokens")
+            .to.be.equal(0)
     })
 
     it('Inject Energy', async () => {
