@@ -192,7 +192,7 @@ describe('Inject Energy', () => {
             .createEnergyTokenStorage()
             .accounts({
                 prosumer: prosumer2.publicKey,
-                energyTokenStorage: prosomer2EnergyStorage
+                energyTokenStorage: prosumer2EnergyStorage
             })
             .signers([prosumer2])
             .rpc();
