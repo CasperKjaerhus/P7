@@ -177,7 +177,7 @@ describe('Inject Energy', () => {
 
         const prosumer2 = anchor.web3.Keypair.generate();
 
-        const [prosomer2EnergyStorage] = await PublicKey
+        const [prosumer2EnergyStorage] = await PublicKey
         .findProgramAddress(
             [
                 anchor.utils.bytes.utf8.encode("energytokenstorage"),
