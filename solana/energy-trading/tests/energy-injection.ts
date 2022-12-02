@@ -50,7 +50,7 @@ describe('Inject Energy', () => {
             ],
             program.programId
         );
-    })
+    });
 
     it('Create Smart Power Storage', async () => {
         const [smartpowerstoragePDA] = await PublicKey
@@ -177,7 +177,7 @@ describe('Inject Energy', () => {
 
         const prosumer2 = anchor.web3.Keypair.generate();
 
-        const [prosomer2EnergyStorage] = await PublicKey
+        const [prosumer2EnergyStorage] = await PublicKey
         .findProgramAddress(
             [
                 anchor.utils.bytes.utf8.encode("energytokenstorage"),
@@ -192,18 +192,18 @@ describe('Inject Energy', () => {
             .createEnergyTokenStorage()
             .accounts({
                 prosumer: prosumer2.publicKey,
-                energyTokenStorage: prosomer2EnergyStorage
+                energyTokenStorage: prosumer2EnergyStorage
             })
             .signers([prosumer2])
             .rpc();
 
-        await expect(program.account.energyTokenStorage.fetch(prosomer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
+        await expect(program.account.energyTokenStorage.fetch(prosumer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
 
         await expect(program.methods
             .utilizeEnergy(5)
             .accounts({
                 consumer: prosumer2.publicKey,
-                energyTokenStorage: prosomer2EnergyStorage,
+                energyTokenStorage: prosumer2EnergyStorage,
                 smartPowerStorage: smartpowerstoragePDA
             })
             .signers([prosumer2])
