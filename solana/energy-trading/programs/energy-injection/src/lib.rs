@@ -76,7 +76,7 @@ pub struct InitializeSmartPowerStorage<'info> {
     #[account(
         init,
         payer = initializer,
-        space = 8 + 2 + 1, 
+        space = 8 + 2 + 1, // Anchor Discriminant + u16 + u8
         seeds = [b"smartpowerstorage"], bump
     )]
     pub smart_power_storage: Account<'info, SmartPowerStorage>,
@@ -90,7 +90,7 @@ pub struct CreateEnergyTokenStorage<'info> {
     #[account(
         init,
         payer = prosumer,
-        space = 8 + 2 + 2 + 1, 
+        space = 8 + 2 + 2 + 1, // Anchor Discriminant + u16 + u16 + u8
         seeds = [b"energytokenstorage", prosumer.key().as_ref()], bump
     )]
     pub energy_token_storage: Account<'info, EnergyTokenStorage>,
