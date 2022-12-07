@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-tic_tac_toe = "DCFHJduxcaG6By7sy4M9kMnTuaUCMkgR6MgmX2cosyvi"
+energy_injection = "8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr"
 
 [registry]
 url = "https://api.apr.dev"

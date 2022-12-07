@@ -1,12 +1,12 @@
 [package]
-name = "tic-tac-toe"
+name = "energy-injection"
 version = "0.1.0"
 description = "Created with Anchor"
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "tic_tac_toe"
+name = "energy_injection"
 
 [features]
 no-entrypoint = []
@@ -16,6 +16,4 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = "=0.25"
-num-traits = "0.2"
-num-derive = "0.3"
+anchor-lang = {version = "0.25.0"}
