@@ -90,7 +90,7 @@ describe('Inject Energy', () => {
             .rpc();
         
         await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA)))
-            .to.eventually.have.property("noTokens")
+            .to.eventually.have.property("numTokens")
             .to.be.equal(0)
     })
 
@@ -115,7 +115,7 @@ describe('Inject Energy', () => {
             .to.be.equal(currentKwh+10);
 
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
-            .to.eventually.have.property("noTokens")
+            .to.eventually.have.property("numTokens")
             .to.be.equal(10);
     })
 
@@ -144,7 +144,7 @@ describe('Inject Energy', () => {
     });
 
     it('Utilize energy', async () => {
-        const {noTokens, tokensForSale} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
+        const {numTokens, tokensForSale} = await program.account.energyTokenStorage.fetch(energytokenstoragePDA);
         
         await program.methods
             .utilizeEnergy(5)
@@ -157,8 +157,8 @@ describe('Inject Energy', () => {
             .rpc();
         
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
-            .to.eventually.have.property("noTokens")
-            .to.be.equal(noTokens-5);
+            .to.eventually.have.property("numTokens")
+            .to.be.equal(numTokens-5);
         
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
             .to.eventually.have.property("tokensForSale")
@@ -190,7 +190,7 @@ describe('Inject Energy', () => {
             .signers([prosumer2])
             .rpc();
 
-        await expect(program.account.energyTokenStorage.fetch(prosumer2EnergyStorage)).to.eventually.have.property("noTokens").to.be.eq(0)
+        await expect(program.account.energyTokenStorage.fetch(prosumer2EnergyStorage)).to.eventually.have.property("numTokens").to.be.eq(0)
 
         await expect(program.methods
             .utilizeEnergy(5)

@@ -19,7 +19,7 @@ pub mod energy_injection {
 
     pub fn create_energy_token_storage(ctx: Context<CreateEnergyTokenStorage>) -> Result<()> {
         let energy_token_storage: &mut Account<EnergyTokenStorage> = &mut ctx.accounts.energy_token_storage;
-        energy_token_storage.no_tokens = 0;
+        energy_token_storage.num_tokens = 0;
         energy_token_storage.tokens_for_sale = 0;
         energy_token_storage.bump = *ctx.bumps.get("energy_token_storage").unwrap();
 
@@ -29,7 +29,7 @@ pub mod energy_injection {
     pub fn send_injection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
 
         ctx.accounts.smart_power_storage.kwh += amount;
-        ctx.accounts.energy_token_storage.no_tokens += amount;
+        ctx.accounts.energy_token_storage.num_tokens += amount;
         ctx.accounts.energy_token_storage.tokens_for_sale += amount;
 
         Ok(())
@@ -37,18 +37,18 @@ pub mod energy_injection {
 
     pub fn utilize_energy(ctx: Context<UtilizeEnergyContext>, amount: u16) -> Result<()> {
         // Check if user has enough energy tokens
-        require!(ctx.accounts.energy_token_storage.no_tokens >= amount, EnergyInjectionErrors::NotEnoughEnergyTokens);
+        require!(ctx.accounts.energy_token_storage.num_tokens >= amount, EnergyInjectionErrors::NotEnoughEnergyTokens);
 
         // Check if smart power storage has enough energy
         require!(ctx.accounts.smart_power_storage.kwh >= amount, EnergyInjectionErrors::SmartPowerStorageEmpty);
 
         // Subtract Tokens from account and sps
-        ctx.accounts.energy_token_storage.no_tokens -= amount;
+        ctx.accounts.energy_token_storage.num_tokens -= amount;
         ctx.accounts.smart_power_storage.kwh -= amount;
 
-        // If for_sale is higher than no_tokens, set for_sale to no_tokens.
-        if ctx.accounts.energy_token_storage.tokens_for_sale > ctx.accounts.energy_token_storage.no_tokens {
-            ctx.accounts.energy_token_storage.tokens_for_sale = ctx.accounts.energy_token_storage.no_tokens;   
+        // If for_sale is higher than num_tokens, set for_sale to num_tokens.
+        if ctx.accounts.energy_token_storage.tokens_for_sale > ctx.accounts.energy_token_storage.num_tokens {
+            ctx.accounts.energy_token_storage.tokens_for_sale = ctx.accounts.energy_token_storage.num_tokens;   
         }
 
         Ok(())
@@ -64,7 +64,7 @@ pub struct SmartPowerStorage {
 
 #[account]
 pub struct EnergyTokenStorage {
-    no_tokens: u16,
+    num_tokens: u16,
     tokens_for_sale: u16,
     bump: u8,
 }
