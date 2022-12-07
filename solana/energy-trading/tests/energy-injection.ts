@@ -53,13 +53,6 @@ describe('Inject Energy', () => {
     });
 
     it('Create Smart Power Storage', async () => {
-        const [smartpowerstoragePDA] = await PublicKey
-        .findProgramAddress(
-            [
-                anchor.utils.bytes.utf8.encode("smartpowerstorage")
-            ],
-            program.programId
-        );
 
         await program.methods
             .initSps()
