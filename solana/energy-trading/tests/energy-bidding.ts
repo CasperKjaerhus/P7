@@ -1,6 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
-import { PublicKey } from '@solana/web3.js';
+import { Connection, PublicKey } from '@solana/web3.js';
 import { assert, expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
@@ -33,7 +33,7 @@ describe('Energy bidding', () => {
         await airdropSolToKey(consumer.publicKey, 10);
 
         await program.methods
-            .sendBid(10, 5)
+            .sendBid(10, 5, 1)
             .accounts({
                 bid: bid.publicKey,
                 consumer: consumer.publicKey,
@@ -45,6 +45,46 @@ describe('Energy bidding', () => {
 
         expect(bidAccount.energyDemand).to.equal(10);
         expect(bidAccount.bidValue).to.equal(5);
+        expect(bidAccount.auctionId).to.equal(1);
+    });
+
+    it('Consumer executes sendBid and pays lamports to Bid account', async () => {
+        const bid = anchor.web3.Keypair.generate();
+        const transactionFee = 1044000;
+
+        await airdropSolToKey(consumer.publicKey, 100);
+
+        let consumerBefore = await provider.connection.getBalance(consumer.publicKey);
+
+        await program.methods
+            .sendBid(10, 5, 1)
+            .accounts({
+                bid: bid.publicKey,
+                consumer: consumer.publicKey,
+            })
+            .signers([bid, consumer])
+            .rpc();
+        
+        let consumerNow = await provider.connection.getBalance(consumer.publicKey);
+        let consumerAfter = consumerBefore - (10*5) - transactionFee;
+
+        expect(consumerNow).to.equal(consumerAfter);
+    });
+
+    it('Release cash to target user', async () => {
+        const target = anchor.web3.Keypair.generate();
+        const bid = anchor.web3.Keypair.generate();
+
+        //await airdropSolToKey(bid.publicKey, 100);
+
+        await program.methods
+            .releaseCash(5, 0)
+            .accounts({
+                bidAccount: bid.publicKey,
+                target: target.publicKey,
+            })
+            .signers([bid, target])
+            .rpc();
     });
 
 });
