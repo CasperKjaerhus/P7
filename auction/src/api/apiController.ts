@@ -8,10 +8,14 @@ import {
     Route,
     //  SuccessResponse,
 } from "tsoa";
-import { APIService } from "./apiService";
+import { initialiseSPS, createEnergyTokenStorage, injectEnergy, bidOnEnergy, utiliseEnergy, startAuction, executeAuction } from "./apiService"
+import * from "../../../solana/energy-trading/target/types/"
+
 
 @Route("api")
 export class APIController extends Controller {
+
+    curAuctionID: number = 0;
 
     /**
     * Posts an injection of energy to the blockchain.
@@ -19,17 +23,35 @@ export class APIController extends Controller {
     * @param publicKey The public key of the injecting user
     * @param energySupply The amount of energy injected
     */
-    @Post("injection")
+    @Post("initSPS")
+    public async initialiseSPS(): Promise<string> {
+
+    }
+
+    /**
+    * Posts an injection of energy to the blockchain.
+    * Supply public key of injecter and the amount of energy injected.
+    * @param publicKey The public key of the injecting user
+    * @param energySupply The amount of energy injected
+    */
+    @Post("createETS")
+    public async createEnergyTokenStorage(
+        @Query() publicKey: string,
+    ): Promise<string> {
+
+    }
+
+    /**
+    * Posts an injection of energy to the blockchain.
+    * Supply public key of injecter and the amount of energy injected.
+    * @param publicKey The public key of the injecting user
+    * @param energySupply The amount of energy injected
+    */
+    @Post("inject")
     public async injectEnergy(
         @Query() publicKey: string,
         @Query() energySupply: number
-        //@Body() requestBody: ProsumerInj
     ): Promise<string> {
-
-        return new APIService().injectEnergy({
-            publicKey: publicKey,
-            energySupply: energySupply
-        });
 
     }
 
@@ -45,14 +67,9 @@ export class APIController extends Controller {
         @Query() publicKey: string,
         @Query() demand: number,
         @Query() price: number
-        //@Body() requestBody: ConsumerBid
     ): Promise<string> {
 
-        return new APIService().bidOnEnergy({
-            publicKey: publicKey,
-            demand: demand,
-            price: price
-        });
+
 
     }
 
@@ -66,34 +83,33 @@ export class APIController extends Controller {
     public async utiliseEnergy(
         @Query() publicKey: string,
         @Query() energyTokenStorage: string
-        //@Body() requestBody: ConsumerUtil
     ): Promise<string> {
 
-        return new APIService().utiliseEnergy({
-            publicKey: publicKey,
-            energyTokenStorage: energyTokenStorage
-        });
 
+
+    }
+
+    /**
+    * Posts a utilisation to the blockchain.
+    * Supply public key of utilising user and PDA to the energy token storage
+    * @param publicKey The public key of the utilising user
+    * @param energyTokenStorage The PDA key of the users energy token storage
+    */
+    @Post("startAuction")
+    public async startAuction(): Promise<void> {
+
+        startAuction();
+    }
+
+    /**
+    * Posts a utilisation to the blockchain.
+    * Supply public key of utilising user and PDA to the energy token storage
+    * @param publicKey The public key of the utilising user
+    * @param energyTokenStorage The PDA key of the users energy token storage
+    */
+    @Post("executeAuction")
+    public async executeAuction(): Promise<void> {
+
+        executeAuction();
     }
 }
-/*
-@Route("users")
-export class UsersController extends Controller {
-    @Get("{userId}")
-    public async getUser(
-        @Path() userId: number,
-        @Query() name?: string
-    ): Promise<User> {
-        return new UsersService().get(userId, name);
-    }
-
-    @SuccessResponse("201", "Created") // Custom success response
-    @Post()
-    public async createUser(
-        @Body() requestBody: UserCreationParams
-    ): Promise<void> {
-        this.setStatus(201); // set return status 201
-        new UsersService().create(requestBody);
-        return;
-    }
-}*/
