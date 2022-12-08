@@ -43,7 +43,7 @@ export class Auction {
             transactions = transactions.concat(this._serveWinner(bid, this.buyers[1].price)); //if we have atleast 2 buyers
             
             if (bid.demand == 0)
-                this.buyers.splice(0, 1);
+                this.buyers.shift(); // Remove buyer since demand has been met.
         }
 
         // Special case - we have excess supply and exactly one buyer to serve.
@@ -51,17 +51,20 @@ export class Auction {
             transactions = transactions.concat(this._serveWinner(this.buyers[0], this.buyers[0].price));
 
             if (this.buyers[0].demand == 0) // Only remove the last bidder, if their entire demand has been met.
-                this.buyers.splice(0,1);
+                this.buyers.shift();
         }
         
+        // this.sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
+        // this.buyers.map((buyer) => console.log(buyer.account, buyer.demand)); // Log bidders with un-met demand
+
         this._handleTransactions(transactions);
 
         return transactions;
     }
     
     private _inputValid(sellers: Seller[], buyers: Buyer[]): boolean {
-        const sellerBool: boolean = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
-        const buyerBool: boolean = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
+        const sellerBool = sellers.every((seller) => seller.supply > 0 && Number.isInteger(seller.supply));
+        const buyerBool = buyers.every((buyer) => buyer.demand > 0 && buyer.price > 0 && Number.isInteger(buyer.demand) && Number.isInteger(buyer.price));
         return sellerBool && buyerBool;
     }
 
@@ -72,9 +75,9 @@ export class Auction {
 
             if (bid.demand >= this.sellers[0].supply) {
                 bid.demand -= this.sellers[0].supply; //Consume entire seller-supply
-                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: winnerPrice}); 
+                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: winnerPrice }); 
 
-                this.sellers.splice(0,1); //Remove seller, as no supply left
+                this.sellers.shift(); //Remove seller, as no supply left
 
             } else {
                 this.sellers[0].supply -= bid.demand;  //Bid is met in its entirety

@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { describe } from 'mocha';
 
 describe('Single Bids', () => {
-  const testCases = [
+  const testCases = 
     {
       title: "Single bid, Excess supply",
       bid: [{ demand: 3, price: 2, account: "speel" }],
@@ -131,8 +131,8 @@ describe('Input Validation', () => {
         length: 0
       }
     },
-    {
-      title: "Negative price",
+    {r
+      title: "Negative price", main
       bid: [{ demand: 3, price: -2, account: "speel" }],
       sellers: [{ supply: 2, account: "cleth" }],
       expected: {
