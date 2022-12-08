@@ -54,9 +54,6 @@ export class Auction {
                 this.buyers.splice(0,1);
         }
         
-        this.sellers.map((seller) => console.log(seller.account,seller.supply)); // Log sellers with excess supply after the auction
-        this.buyers.map((buyer) => console.log(buyer.account, buyer.demand)); // Log bidders with un-met demand
-
         this._handleTransactions(transactions);
 
         return transactions;
@@ -75,13 +72,13 @@ export class Auction {
 
             if (bid.demand >= this.sellers[0].supply) {
                 bid.demand -= this.sellers[0].supply; //Consume entire seller-supply
-                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: (winnerPrice+bid.price)/2 }); 
+                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: winnerPrice}); 
 
                 this.sellers.splice(0,1); //Remove seller, as no supply left
 
             } else {
                 this.sellers[0].supply -= bid.demand;  //Bid is met in its entirety
-                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: bid.demand, price: (winnerPrice+bid.price)/2 });
+                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: bid.demand, price: winnerPrice });
                 
                 this.sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Sort sellers again, as the supply has changed
                 bid.demand = 0; //To exit while-loop.

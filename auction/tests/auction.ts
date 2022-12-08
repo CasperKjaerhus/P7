@@ -130,7 +130,7 @@ describe('Auction tests', () => {
       sellers: [{supply: 7, account: "Cleth"}],
       expected: {
         transactions: [
-                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 6, price: 2.5}, 
+                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 6, price: 2}, 
                       {sellerKey: "Cleth", buyerKey: "speel", energy: 1, price: 2}
         ],
         length: 2
@@ -148,8 +148,8 @@ describe('Auction tests', () => {
       ],
       expected: {
         transactions: [
-                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 7, price: 6.5}, 
-                      {sellerKey: "Dion", buyerKey: "Kleander", energy: 1, price: 6.5},
+                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 7, price: 5}, 
+                      {sellerKey: "Dion", buyerKey: "Kleander", energy: 1, price: 5},
                       {sellerKey: "Dion", buyerKey: "speel", energy: 5, price: 5}
         ],
         length: 3
@@ -164,7 +164,7 @@ describe('Auction tests', () => {
       sellers: [{supply: 7, account: "Cleth"}],
       expected: {
         transactions: [
-                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 3, price: 2.5}, 
+                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 3, price: 2}, 
                       {sellerKey: "Cleth", buyerKey: "speel", energy: 3, price: 2}
         ],
         length: 2
@@ -182,7 +182,7 @@ describe('Auction tests', () => {
       ],
       expected: {
         transactions: [
-                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 4, price: 6.5}, 
+                      {sellerKey: "Cleth", buyerKey: "Kleander", energy: 4, price: 5}, 
                       {sellerKey: "Dion", buyerKey: "speel", energy: 6, price: 5}
         ],
         length: 2
