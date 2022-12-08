@@ -1,9 +1,9 @@
 import { Auction, Buyer, Seller, Transaction } from '../src/auction';
 import { expect } from 'chai';
-import {describe} from 'mocha';
+import { describe } from 'mocha';
 
-describe('Auction tests', () => {
-  const testCases= [
+describe('Single Bids', () => {
+  const testCases = [
     {
       title: "Single bid, Excess supply",
       bid: [{ demand: 3, price: 2, account: "speel" }],
@@ -21,106 +21,24 @@ describe('Auction tests', () => {
         transactions: [{sellerKey: "cleth", buyerKey: "speel", energy: 2, price: 2}],
         length: 1
       }
-    },
-    {
-      title: "Invalid input, negative demand",
-      bid: [{ demand: -3, price: 2, account: "speel" }],
-      sellers: [{ supply: 2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, negative price",
-      bid: [{ demand: 3, price: -2, account: "speel" }],
-      sellers: [{ supply: 2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, negative supply",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [{ supply: -2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, decimal demand",
-      bid: [{ demand: 3.2, price: 2, account: "speel" }],
-      sellers: [{ supply: 2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, decimal price",
-      bid: [{ demand: 3, price: 2.3, account: "speel" }],
-      sellers: [{ supply: 2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, decimal supply",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [{ supply: 2.6, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, demand = 0",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [{ supply: -2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, price = 0",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [{ supply: -2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, supply = 0",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [{ supply: 0, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, no bid",
-      bid: [],
-      sellers: [{ supply: 2, account: "cleth" }],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
-    {
-      title: "Invalid input, no seller",
-      bid: [{ demand: 3, price: 2, account: "speel" }],
-      sellers: [],
-      expected: {
-        transactions: [],
-        length: 0
-      }
-    },
+    }
+  ]
+
+  testCases.forEach((data) => {
+    it(data.title, () => {
+      const instance: Auction = new Auction(data.sellers, data.bid)
+
+      const result = instance.auction();
+
+      expect(result).to.deep.equal(data.expected.transactions);
+      expect(result.length).to.be.equal(data.expected.length);
+    })
+  })
+});
+  
+
+describe('Multiple Bids', () => {
+  const testCases = [
     {
       title: "Multiple Bidders, Single Seller, Excess Demand",
       bid: [
@@ -192,6 +110,121 @@ describe('Auction tests', () => {
 
   testCases.forEach((data) => {
     it(data.title, () => {
+      const instance: Auction = new Auction(data.sellers, data.bid)
+
+      const result = instance.auction();
+
+      expect(result).to.deep.equal(data.expected.transactions);
+      expect(result.length).to.be.equal(data.expected.length);
+    })
+  })
+});
+
+describe('Input Validation', () => {
+  const testCases = [
+    {
+      title: "Negative demand",
+      bid: [{ demand: -3, price: 2, account: "speel" }],
+      sellers: [{ supply: 2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Negative price",
+      bid: [{ demand: 3, price: -2, account: "speel" }],
+      sellers: [{ supply: 2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Negative supply",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [{ supply: -2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Decimal demand",
+      bid: [{ demand: 3.2, price: 2, account: "speel" }],
+      sellers: [{ supply: 2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Decimal price",
+      bid: [{ demand: 3, price: 2.3, account: "speel" }],
+      sellers: [{ supply: 2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Decimal supply",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [{ supply: 2.6, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Demand = 0",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [{ supply: -2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Price = 0",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [{ supply: -2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "Supply = 0",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [{ supply: 0, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "No bid",
+      bid: [],
+      sellers: [{ supply: 2, account: "cleth" }],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    },
+    {
+      title: "No seller",
+      bid: [{ demand: 3, price: 2, account: "speel" }],
+      sellers: [],
+      expected: {
+        transactions: [],
+        length: 0
+      }
+    }
+  ]
+  
+  testCases.forEach((data) => {
+    it("Invalid Input: " + data.title, () => {
       const instance: Auction = new Auction(data.sellers, data.bid)
 
       const result = instance.auction();
