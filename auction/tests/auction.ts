@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import { describe } from 'mocha';
 
 describe('Single Bids', () => {
-  const testCases = 
+  const testCases = [
     {
-      title: "Single bid, Excess supply",
+      title: "Excess supply",
       bid: [{ demand: 3, price: 2, account: "speel" }],
       sellers: [{ supply: 4, account: "cleth" }],
       expected: {
@@ -14,7 +14,7 @@ describe('Single Bids', () => {
       }
     }, 
     {
-      title: "Single bid, Excess demand",
+      title: "Excess demand",
       bid: [{ demand: 3, price: 2, account: "speel" }],
       sellers: [{ supply: 2, account: "cleth" }],
       expected: {
@@ -25,7 +25,7 @@ describe('Single Bids', () => {
   ]
 
   testCases.forEach((data) => {
-    it(data.title, () => {
+    it("Single Bid: " + data.title, () => {
       const instance: Auction = new Auction(data.sellers, data.bid)
 
       const result = instance.auction();
@@ -40,7 +40,7 @@ describe('Single Bids', () => {
 describe('Multiple Bids', () => {
   const testCases = [
     {
-      title: "Multiple Bidders, Single Seller, Excess Demand",
+      title: "Single Seller, Excess Demand",
       bid: [
             { demand: 3, price: 2, account: "speel" }, 
             { demand: 6, price: 3, account:"Kleander"}
@@ -55,7 +55,7 @@ describe('Multiple Bids', () => {
       }
     },
     {
-      title: "Multiple Bidders, Multiple Sellers, Excess Demand",
+      title: "Multiple Sellers, Excess Demand",
       bid: [
             { demand: 6, price: 5, account: "speel" }, 
             { demand: 8, price: 8, account: "Kleander"}
@@ -74,7 +74,7 @@ describe('Multiple Bids', () => {
       }
     },
     {
-      title: "Multiple Bidders, Single Seller, Excess Supply",
+      title: "Single Seller, Excess Supply",
       bid: [
             { demand: 3, price: 2, account: "speel" }, 
             { demand: 3, price: 3, account:"Kleander"}
@@ -89,7 +89,7 @@ describe('Multiple Bids', () => {
       }
     },
     {
-      title: "Multiple Bidders, Multiple Sellers, Excess Supply",
+      title: "Multiple Sellers, Excess Supply",
       bid: [
             { demand: 6, price: 5, account: "speel" }, 
             { demand: 4, price: 8, account: "Kleander"}
@@ -109,7 +109,7 @@ describe('Multiple Bids', () => {
   ]
 
   testCases.forEach((data) => {
-    it(data.title, () => {
+    it("Multiple Bidders: " + data.title, () => {
       const instance: Auction = new Auction(data.sellers, data.bid)
 
       const result = instance.auction();
@@ -131,8 +131,8 @@ describe('Input Validation', () => {
         length: 0
       }
     },
-    {r
-      title: "Negative price", main
+    {
+      title: "Negative price", 
       bid: [{ demand: 3, price: -2, account: "speel" }],
       sellers: [{ supply: 2, account: "cleth" }],
       expected: {
