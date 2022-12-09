@@ -14,6 +14,7 @@ describe('Energy bidding', () => {
 
     const program = anchor.workspace.EnergyBidding as Program<EnergyBidding>;
     const consumer = anchor.web3.Keypair.generate();
+    const bid = anchor.web3.Keypair.generate();
     
     const airdropSolToKey = async (key: PublicKey, amount: number) => {
 
@@ -28,8 +29,6 @@ describe('Energy bidding', () => {
     }
 
     it('Send bid', async () => {
-        const bid = anchor.web3.Keypair.generate();
-
         await airdropSolToKey(consumer.publicKey, 10);
 
         await program.methods
@@ -49,8 +48,8 @@ describe('Energy bidding', () => {
     });
 
     it('Consumer executes sendBid and pays lamports to Bid account', async () => {
-        const bid = anchor.web3.Keypair.generate();
         const transactionFee = 1044000;
+        const bid = anchor.web3.Keypair.generate();
 
         await airdropSolToKey(consumer.publicKey, 100);
 
@@ -73,17 +72,16 @@ describe('Energy bidding', () => {
 
     it('Release cash to target user', async () => {
         const target = anchor.web3.Keypair.generate();
-        const bid = anchor.web3.Keypair.generate();
 
-        //await airdropSolToKey(bid.publicKey, 100);
+        await airdropSolToKey(bid.publicKey, 100);
 
         await program.methods
-            .releaseCash(5, 0)
+            .releaseCash(5,1)
             .accounts({
                 bidAccount: bid.publicKey,
                 target: target.publicKey,
             })
-            .signers([bid, target])
+            .signers([target, bid])
             .rpc();
     });
 

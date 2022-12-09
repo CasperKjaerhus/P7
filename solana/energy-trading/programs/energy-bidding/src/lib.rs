@@ -64,7 +64,7 @@ pub struct SendBid<'info> {
 
 #[derive(Accounts)]
 pub struct ReleaseCash<'info> {
-    #[account(mut)]
+    #[account(mut, signer)]
     pub bid_account: Account<'info, Bid>,
     #[account(mut)]
     pub target: Signer<'info>,
