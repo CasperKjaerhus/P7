@@ -5,6 +5,7 @@ import { EnergyInjection } from "../target/types/energy_injection";
 import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { EnergyMarket } from "../target/types/energy_market";
 
 chai.use(chaiAsPromised);
 
@@ -13,7 +14,7 @@ describe('Inject Energy', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
+    const program = anchor.workspace.EnergyInjection as Program<EnergyMarket>;
 
     // PDA's are retrieved during before()
     let smartpowerstoragePDA: anchor.web3.PublicKey;

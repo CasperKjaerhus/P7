@@ -1,12 +1,12 @@
 [package]
-name = "energy-bidding"
+name = "Energy-Market"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "energy_bidding"
+name = "energy_market"
 
 [features]
 no-entrypoint = []

@@ -5,6 +5,7 @@ skip-lint = false
 [programs.localnet]
 energy_injection = "DrReEY58u59wdn223dBCfNMNXGbNcuWzS9o81WEAwnmA"
 energy_bidding = "H4EeWD6PBphuaJZW4U9FVMdNhZtdEcJU7zt7umMYzYNg"
+energy_market = "DisBezjfPN6rb6YqVx8JRYdaPXA5MzsDeat6NaX6DoHf"
 
 [registry]
 url = "https://api.apr.dev"

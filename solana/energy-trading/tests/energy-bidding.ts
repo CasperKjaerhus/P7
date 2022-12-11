@@ -5,6 +5,7 @@ import { assert, expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { EnergyBidding } from "../target/types/energy_bidding";
+import { EnergyMarket } from "../target/types/energy_market";
 
 chai.use(chaiAsPromised);
 
@@ -12,7 +13,7 @@ describe('Energy bidding', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.EnergyBidding as Program<EnergyBidding>;
+    const program = anchor.workspace.EnergyBidding as Program<EnergyMarket>;
     const consumer = anchor.web3.Keypair.generate();
     const bid = anchor.web3.Keypair.generate();
     
