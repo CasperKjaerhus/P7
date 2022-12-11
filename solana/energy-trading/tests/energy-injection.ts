@@ -56,7 +56,7 @@ describe('Inject Energy', () => {
     it('Create Smart Power Storage', async () => {
 
         await program.methods
-            .initSps()
+            .initializeSmartPowerStorage()
             .accounts({
                 initializer: provider.wallet.publicKey,
                 smartPowerStorage: smartpowerstoragePDA
