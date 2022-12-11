@@ -1,12 +1,12 @@
 [package]
-name = "energy-injection"
+name = "energy-bidding"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "energy_injection"
+name = "energy_bidding"
 
 [features]
 no-entrypoint = []
@@ -16,4 +16,4 @@ cpi = ["no-entrypoint"]
 default = []
 
 [dependencies]
-anchor-lang = {version = "0.25.0", features = ["init-if-needed"]}
+anchor-lang = "0.25.0"
