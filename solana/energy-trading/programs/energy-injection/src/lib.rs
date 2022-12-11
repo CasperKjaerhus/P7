@@ -3,7 +3,7 @@ use errors::EnergyInjectionErrors;
 
 mod errors;
 
-declare_id!("8HAvCmA3sB8f5agvZmBXDepLmEToB8YwnZgt9kcitzbr");
+declare_id!("DrReEY58u59wdn223dBCfNMNXGbNcuWzS9o81WEAwnmA");
 
 #[program]
 pub mod energy_injection {

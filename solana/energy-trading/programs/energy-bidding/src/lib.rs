@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 use anchor_lang::system_program;
 
 
-declare_id!("7SyW3DnxzW12tD7oKVSzovEoEMbvuWQdR1Tv8nJ4rSBe");
+declare_id!("H4EeWD6PBphuaJZW4U9FVMdNhZtdEcJU7zt7umMYzYNg");
 
 #[program]
 pub mod energy_bidding {
