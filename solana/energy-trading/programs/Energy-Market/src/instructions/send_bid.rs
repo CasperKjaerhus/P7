@@ -28,6 +28,7 @@ pub struct SendBid<'info> {
         init,
         payer = consumer,
         space = 8 + 2 + 2 + 2 + 8,
+        seeds = [b"bid", consumer.key().as_ref()], bump 
     )]
     pub bid: Account<'info, Bid>,
     pub system_program: Program<'info, System>,
