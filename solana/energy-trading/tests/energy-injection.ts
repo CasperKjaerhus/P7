@@ -1,7 +1,6 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from '@solana/web3.js';
-import { EnergyInjection } from "../target/types/energy_injection";
 import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";

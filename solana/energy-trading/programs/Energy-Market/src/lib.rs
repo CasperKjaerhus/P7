@@ -5,7 +5,7 @@ mod instructions;
 mod data_accounts;
 mod errors;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3");
 
 #[program]
 pub mod energy_market {
@@ -27,8 +27,8 @@ pub mod energy_market {
         utilize_energy::utilize_energy(ctx, amount)
     }
 
-    pub fn send_bid(ctx: Context<SendBid>, energy_demand: u16, bid_value: u16, auction_id: u16) -> Result<()> {
-        send_bid::send_bid(ctx, energy_demand, bid_value, auction_id)
+    pub fn send_bid(ctx: Context<SendBid>, bidId: u8, energy_demand: u16, bid_value: u16, auction_id: u16) -> Result<()> {
+        send_bid::send_bid(ctx, bidId, energy_demand, bid_value, auction_id)
     }
 
     pub fn release_cash(ctx: Context<ReleaseCash>, amount: u16, price: u16) -> Result<()> {
@@ -36,6 +36,3 @@ pub mod energy_market {
     }
 
 }
-
-#[derive(Accounts)]
-pub struct Initialize {}

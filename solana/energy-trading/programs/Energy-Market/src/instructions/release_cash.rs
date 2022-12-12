@@ -16,8 +16,11 @@ pub fn release_cash(ctx: Context<ReleaseCash>, amount: u16, price: u16) -> Resul
 
 
 #[derive(Accounts)]
+#[instruction(bid_id: u8)]
 pub struct ReleaseCash<'info> {
-    #[account(mut, signer)]
+    #[account(mut,
+        seeds = [b"bid", target.key().as_ref(), &[bid_id]], bump
+    )]
     pub bid_account: Account<'info, Bid>,
     #[account(mut)]
     pub target: Signer<'info>,
