@@ -1,21 +1,19 @@
 import {
-    //  Body,
     Controller,
-    //  Get,
-    //  Path,
     Post,
     Query,
     Route,
     SuccessResponse,
 } from "tsoa";
-//import { initialiseSPS, createEnergyTokenStorage, injectEnergy, bidOnEnergy, utiliseEnergy, startAuction, executeAuction } from "./apiService"
+//import {  } from "../../build/solana/energy-trading/target/types/energy_injection";
 import { EnergyInjection } from "../../../solana/energy-trading/target/types/energy_injection"
 import * as anchor from '@project-serum/anchor';
-import { AnchorError, Program } from '@project-serum/anchor';
+import { Program } from '@project-serum/anchor';
 import { PublicKey } from '@solana/web3.js';
+//import { Auction } from '../auction'
 
-const provider = anchor.AnchorProvider.env()
-anchor.setProvider(provider);
+//const provider = anchor.AnchorProvider.env()
+//anchor.setProvider(provider);
 const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
 @Route("api")
@@ -23,9 +21,10 @@ export class APIController extends Controller {
 
     curAuctionID: number = 0;
     smartPowerStoragePDA: any; // anchor.web3.PublicKey;
+    //TODO: Auction skal ikke tage contructor param
+    // auction: Auction = new Auction();
 
     private async getSPSPDA() {
-
         if (this.smartPowerStoragePDA != null) {
             return this.smartPowerStoragePDA;
         }
@@ -42,18 +41,17 @@ export class APIController extends Controller {
     }
 
     private errorResponse(e: any) {
-        if (e instanceof AnchorError) {
-            this.setStatus(400);
-            return e.message;
-        }
+        //if (e instanceof AnchorError) {
+        this.setStatus(400);
+        return e.message;
+        //}
 
-        this.setStatus(500);
-        return "Something went wrong";
+        //this.setStatus(500);
+        //return "Something went wrong";
     }
 
     private keyPairFromPrivateKey(privateKey: String) {
-        //const uint8PrivateKey = Uint8Array.from(privateKey.split("").map(x => x.charCodeAt()))
-        //const uint8PrivateKey = Uint8Array.from(privateKey)
+        const uint8PrivateKey = Uint8Array.from(Array.from(privateKey).map(letter => letter.charCodeAt(0)));
         return anchor.web3.Keypair.fromSecretKey(uint8PrivateKey);
     }
 
@@ -82,8 +80,8 @@ export class APIController extends Controller {
 
         try {
             program.methods.initSps().accounts({
-                // TODO: Auctioneer skal betale for init
-                initializer: provider.wallet.publicKey,
+                // TODO: Auctioneer skal betale for init, noget omkring provider skal auctioneer så local keys
+                //initializer: provider.wallet.publicKey,
                 smartPowerStorage: this.smartPowerStoragePDA
             });
         } catch (e) {
@@ -151,12 +149,15 @@ export class APIController extends Controller {
                 })
                 .signers([keyPair])
                 .rpc();
-
             return res;
+
         } catch (e) {
             return this.errorResponse(e);
         }
     }
+
+
+
 
     /**
     * Posts a bid to the blockchain.
@@ -165,44 +166,36 @@ export class APIController extends Controller {
     * @param demand The energy demand of the user
     * @param price The bid price of the user
     */
-    @Post("bid")
-    public async bidOnEnergy(
-        @Query() publicKey: string,
-        @Query() demand: number,
-        @Query() price: number
-    ): Promise<string> {
+    /*    @Post("bid")
+        public async bidOnEnergy(
+            @Query() privateKey: string,
+            @Query() demand: number,
+            @Query() price: number
+        ): Promise<string> {
+    
+    
+    if (consumer.price <= 0)
+        return "Invalid price, <= 0"
+    if (consumer.demand <= 0)
+        return "Invalid demand, <= 0";
 
 
 
-    }
-
-    /**
-    * Posts a utilisation to the blockchain.
-    * Supply public key of utilising user and PDA to the energy token storage
-    * @param publicKey The public key of the utilising user
-    * @param energyTokenStorage The PDA key of the users energy token storage
-    */
-    @Post("util")
-    public async utiliseEnergy(
-        @Query() publicKey: string,
-        @Query() energyTokenStorage: string
-    ): Promise<string> {
-
-
-
-    }
-
-    /**
-    * Posts a utilisation to the blockchain.
-    * Supply public key of utilising user and PDA to the energy token storage
-    * @param publicKey The public key of the utilising user
-    * @param energyTokenStorage The PDA key of the users energy token storage
-    */
-    @Post("startAuction")
-    public async startAuction(): Promise<void> {
-
-        startAuction();
-    }
+            const keyPair = this.keyPairFromPrivateKey(privateKey);
+    
+            try {
+                let res = program.methods.sendBid(demand, price)
+                    .accounts({
+                        consumer: keyPair.publicKey,
+                    })
+                    .signers([keyPair])
+                    .rpc();
+                return res;
+    
+            } catch (e) {
+                return this.errorResponse(e);
+            }
+        }*/
 
     /**
     * Posts a utilisation to the blockchain.
@@ -210,9 +203,55 @@ export class APIController extends Controller {
     * @param publicKey The public key of the utilising user
     * @param energyTokenStorage The PDA key of the users energy token storage
     */
-    @Post("executeAuction")
-    public async executeAuction(): Promise<void> {
+    /*   @Post("util")
+       public async utiliseEnergy(
+           @Query() privateKey: string,
+           @Query() energyTokenStorage: string
+       ): Promise<string> {
+   
+           const keyPair = this.keyPairFromPrivateKey(privateKey);
+           const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
+   
+           try {
+               let res = program.methods.utilizeEnergy()
+                   .accounts({
+                       consumer: keyPair.publicKey,
+                       energyTokenStorage: energyTokenStoragePDA
+                   })
+                   .signers([keyPair])
+                   .rpc();
+               return res;
+   
+           } catch (e) {
+               return this.errorResponse(e);
+           }
+       }*/
 
-        executeAuction();
-    }
+    /**
+    * Posts a utilisation to the blockchain.
+    * Supply public key of utilising user and PDA to the energy token storage
+    * @param publicKey The public key of the utilising user
+    * @param energyTokenStorage The PDA key of the users energy token storage
+    */
+    /*  @Post("startAuction")
+      public async startAuction(): Promise<void> {
+  
+          this.curAuctionID++;
+          //TODO: resetSPSandETS();
+      }*/
+
+    /**
+    * Posts a utilisation to the blockchain.
+    * Supply public key of utilising user and PDA to the energy token storage
+    * @param publicKey The public key of the utilising user
+    * @param energyTokenStorage The PDA key of the users energy token storage
+    */
+    /*   @Post("executeAuction")
+       public async executeAuction(): Promise<void> {
+   
+   
+   
+   
+           executeAuction();
+       }*/
 }

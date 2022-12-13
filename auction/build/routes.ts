@@ -20,13 +20,62 @@ export function RegisterRoutes(app: express.Router) {
     //  NOTE: If you do not see routes for all of your controllers in this file, then you might not have informed tsoa of where to look
     //      Please look into the "controllerPathGlobs" config option described in the readme: https://github.com/lukeautry/tsoa
     // ###########################################################################################################
-        app.post('/api/injection',
+        app.post('/api/initSPS',
+            ...(fetchMiddlewares<RequestHandler>(APIController)),
+            ...(fetchMiddlewares<RequestHandler>(APIController.prototype.initialiseSPS)),
+
+            function APIController_initialiseSPS(request: any, response: any, next: any) {
+            const args = {
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new APIController();
+
+
+              const promise = controller.initialiseSPS.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, 201, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/createETS',
+            ...(fetchMiddlewares<RequestHandler>(APIController)),
+            ...(fetchMiddlewares<RequestHandler>(APIController.prototype.createEnergyTokenStorage)),
+
+            function APIController_createEnergyTokenStorage(request: any, response: any, next: any) {
+            const args = {
+                    privateKey: {"in":"query","name":"privateKey","required":true,"dataType":"string"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = getValidatedArgs(args, request, response);
+
+                const controller = new APIController();
+
+
+              const promise = controller.createEnergyTokenStorage.apply(controller, validatedArgs as any);
+              promiseHandler(controller, promise, response, undefined, next);
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/api/inject',
             ...(fetchMiddlewares<RequestHandler>(APIController)),
             ...(fetchMiddlewares<RequestHandler>(APIController.prototype.injectEnergy)),
 
             function APIController_injectEnergy(request: any, response: any, next: any) {
             const args = {
-                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
+                    privateKey: {"in":"query","name":"privateKey","required":true,"dataType":"string"},
                     energySupply: {"in":"query","name":"energySupply","required":true,"dataType":"double"},
             };
 
@@ -40,59 +89,6 @@ export function RegisterRoutes(app: express.Router) {
 
 
               const promise = controller.injectEnergy.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/api/bid',
-            ...(fetchMiddlewares<RequestHandler>(APIController)),
-            ...(fetchMiddlewares<RequestHandler>(APIController.prototype.bidOnEnergy)),
-
-            function APIController_bidOnEnergy(request: any, response: any, next: any) {
-            const args = {
-                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
-                    demand: {"in":"query","name":"demand","required":true,"dataType":"double"},
-                    price: {"in":"query","name":"price","required":true,"dataType":"double"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new APIController();
-
-
-              const promise = controller.bidOnEnergy.apply(controller, validatedArgs as any);
-              promiseHandler(controller, promise, response, undefined, next);
-            } catch (err) {
-                return next(err);
-            }
-        });
-        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/api/util',
-            ...(fetchMiddlewares<RequestHandler>(APIController)),
-            ...(fetchMiddlewares<RequestHandler>(APIController.prototype.utiliseEnergy)),
-
-            function APIController_utiliseEnergy(request: any, response: any, next: any) {
-            const args = {
-                    publicKey: {"in":"query","name":"publicKey","required":true,"dataType":"string"},
-                    energyTokenStorage: {"in":"query","name":"energyTokenStorage","required":true,"dataType":"string"},
-            };
-
-            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-
-            let validatedArgs: any[] = [];
-            try {
-                validatedArgs = getValidatedArgs(args, request, response);
-
-                const controller = new APIController();
-
-
-              const promise = controller.utiliseEnergy.apply(controller, validatedArgs as any);
               promiseHandler(controller, promise, response, undefined, next);
             } catch (err) {
                 return next(err);

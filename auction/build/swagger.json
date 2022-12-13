@@ -18,7 +18,56 @@
 	},
 	"openapi": "3.0.0",
 	"paths": {
-		"/api/injection": {
+		"/api/initSPS": {
+			"post": {
+				"operationId": "InitialiseSPS",
+				"responses": {
+					"201": {
+						"description": "SPS successfully created",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"description": "Posts an injection of energy to the blockchain.\nSupply public key of injecter and the amount of energy injected.",
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/createETS": {
+			"post": {
+				"operationId": "CreateEnergyTokenStorage",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				},
+				"description": "Posts an injection of energy to the blockchain.\nSupply public key of injecter and the amount of energy injected.",
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "privateKey",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/inject": {
 			"post": {
 				"operationId": "InjectEnergy",
 				"responses": {
@@ -37,9 +86,8 @@
 				"security": [],
 				"parameters": [
 					{
-						"description": "The public key of the injecting user",
 						"in": "query",
-						"name": "publicKey",
+						"name": "privateKey",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -53,95 +101,6 @@
 						"schema": {
 							"format": "double",
 							"type": "number"
-						}
-					}
-				]
-			}
-		},
-		"/api/bid": {
-			"post": {
-				"operationId": "BidOnEnergy",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				},
-				"description": "Posts a bid to the blockchain.\nSupply public key of bidder, the energy demand, and the bid price",
-				"security": [],
-				"parameters": [
-					{
-						"description": "The public key of the bidding user",
-						"in": "query",
-						"name": "publicKey",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "The energy demand of the user",
-						"in": "query",
-						"name": "demand",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					},
-					{
-						"description": "The bid price of the user",
-						"in": "query",
-						"name": "price",
-						"required": true,
-						"schema": {
-							"format": "double",
-							"type": "number"
-						}
-					}
-				]
-			}
-		},
-		"/api/util": {
-			"post": {
-				"operationId": "UtiliseEnergy",
-				"responses": {
-					"200": {
-						"description": "Ok",
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "string"
-								}
-							}
-						}
-					}
-				},
-				"description": "Posts a utilisation to the blockchain.\nSupply public key of utilising user and PDA to the energy token storage",
-				"security": [],
-				"parameters": [
-					{
-						"description": "The public key of the utilising user",
-						"in": "query",
-						"name": "publicKey",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "The PDA key of the users energy token storage",
-						"in": "query",
-						"name": "energyTokenStorage",
-						"required": true,
-						"schema": {
-							"type": "string"
 						}
 					}
 				]

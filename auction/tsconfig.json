@@ -35,6 +35,6 @@
     "forceConsistentCasingInFileNames": true,
 
     // Needed for swagger shizzle
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   }
 }
