@@ -100,7 +100,18 @@ describe('Energy bidding', () => {
             program.programId
         );
 
+        const getBalances = async () => { // Quick and dirty helper function to get all balances.
+            return Promise.all([
+                provider.connection.getBalance(consumer.publicKey), 
+                provider.connection.getBalance(target.publicKey),
+                provider.connection.getBalance(bid),
+            ]);
+        }
+
+
+        const [consumerBefore, targetBefore, bidBefore] = await getBalances(); // Before balances
         const [amount, price] = [10, 5]
+
         await program.methods
             .sendBid(3, amount, price, 1)
             .accounts({
@@ -110,9 +121,8 @@ describe('Energy bidding', () => {
             .signers([consumer])
             .rpc();
 
-        const consumerBalanceBefore = await provider.connection.getBalance(consumer.publicKey);
-
-        let txn = await program.methods
+        
+        const txn = await program.methods
             .releaseCash(amount,price)
             .accounts({
                 bidAccount: bid,
@@ -125,11 +135,26 @@ describe('Energy bidding', () => {
         txn.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
         txn.feePayer = consumer.publicKey;
         const transFee = await txn.getEstimatedFee(provider.connection);
+        
         await anchor.web3.sendAndConfirmTransaction(provider.connection, txn, [consumer]);
 
-        const consumerBalanceAfter = await provider.connection.getBalance(consumer.publicKey);
+        const [consumerAfter, targetAfter, bidAfter] = await getBalances(); // Before balances
+        
+        console.log(consumerBefore);
+        console.log(consumerAfter);
 
-        expect(consumerBalanceBefore - consumerBalanceAfter).to.be.equal(transFee); 
+        console.log("differce: ", consumerBefore-consumerAfter);
+        // Check that actual transaction fee is equal to calculated one
+        expect(consumerAfter - consumerBefore).to.be.equal(transFee, "Expect transaction fee"); 
+
+        // Check that money is recieved on target
+        expect(targetAfter - targetBefore).to.be.equal(targetBefore + amount*price);
+
+        // Check that money is spent on bid
+        
     });
 
 });
+
+
+
