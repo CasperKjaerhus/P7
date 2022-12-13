@@ -12,9 +12,8 @@ describe('Energy bidding', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.EnergyBidding as Program<EnergyMarket>;
+    const program = anchor.workspace.EnergyMarket as Program<EnergyMarket>;
     const consumer = anchor.web3.Keypair.generate();
-    const bid = anchor.web3.Keypair.generate();
     
     const airdropSolToKey = async (key: PublicKey, amount: number) => {
 
@@ -30,17 +29,26 @@ describe('Energy bidding', () => {
 
     it('Send bid', async () => {
         await airdropSolToKey(consumer.publicKey, 10);
+        const [bid] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("bid"),
+                consumer.publicKey.toBuffer(),
+                new anchor.BN(1).toBuffer(),
+            ],
+            program.programId
+        );
 
         await program.methods
             .sendBid(1, 10, 5, 1)
             .accounts({
-                bid: bid.publicKey,
+                bid: bid,
                 consumer: consumer.publicKey,
             })
-            .signers([bid, consumer])
+            .signers([consumer])
             .rpc();
         
-        const bidAccount = await program.account.bid.fetch(bid.publicKey);
+        const bidAccount = await program.account.bid.fetch(bid);
 
         expect(bidAccount.energyDemand).to.equal(10);
         expect(bidAccount.bidValue).to.equal(5);
@@ -48,8 +56,16 @@ describe('Energy bidding', () => {
     });
 
     it('Consumer executes sendBid and pays lamports to Bid account', async () => {
-        const transactionFee = 1044000;
-        const bid = anchor.web3.Keypair.generate();
+        const transactionFee = 1280640;
+        const [bid] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("bid"),
+                consumer.publicKey.toBuffer(),
+                new anchor.BN(2).toBuffer(),
+            ],
+            program.programId
+        );
 
         await airdropSolToKey(consumer.publicKey, 100);
 
@@ -58,10 +74,10 @@ describe('Energy bidding', () => {
         await program.methods
             .sendBid(2, 10, 5, 1)
             .accounts({
-                bid: bid.publicKey,
+                bid: bid,
                 consumer: consumer.publicKey,
             })
-            .signers([bid, consumer])
+            .signers([consumer])
             .rpc();
         
         let consumerNow = await provider.connection.getBalance(consumer.publicKey);
@@ -71,17 +87,34 @@ describe('Energy bidding', () => {
     });
 
     it('Release cash to target user', async () => {
-        const target = anchor.web3.Keypair.generate();
+        const [bid] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("bid"),
+                consumer.publicKey.toBuffer(),
+                new anchor.BN(3).toBuffer(),
+            ],
+            program.programId
+        );
 
-        await airdropSolToKey(bid.publicKey, 100);
+        console.log(bid.toString());
+
+        await program.methods
+            .sendBid(3, 10, 5, 1)
+            .accounts({
+                bid: bid,
+                consumer: consumer.publicKey,
+            })
+            .signers([consumer])
+            .rpc();
 
         await program.methods
             .releaseCash(5,1)
             .accounts({
-                bidAccount: bid.publicKey,
-                target: target.publicKey,
+                bidAccount: bid,
+                target: consumer.publicKey,
             })
-            .signers([target, bid])
+            .signers([consumer])
             .rpc();
     });
 

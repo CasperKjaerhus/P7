@@ -20,4 +20,5 @@ pub struct Bid {
     pub bid_value: u16,
     pub auction_id: u16,
     pub bid_id: u8,
+    pub bump: u8,
 }

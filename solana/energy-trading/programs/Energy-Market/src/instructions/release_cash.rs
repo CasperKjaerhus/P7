@@ -1,15 +1,12 @@
 use anchor_lang::prelude::*;
-use anchor_lang::system_program;
 use crate::data_accounts::*;
 
 pub fn release_cash(ctx: Context<ReleaseCash>, amount: u16, price: u16) -> Result<()> {
-    let cpi_context = CpiContext::new(
-        ctx.accounts.system_program.to_account_info(), 
-        system_program::Transfer {
-            from: ctx.accounts.bid_account.to_account_info(),
-            to: ctx.accounts.target.to_account_info(),
-        });
-    system_program::transfer(cpi_context, amount.into())?;
+    let target_account = &mut ctx.accounts.target;
+    let bid_account = &mut ctx.accounts.bid_account;
+
+    **target_account.to_account_info().try_borrow_mut_lamports()? -= u64::from(price*amount);
+    **bid_account.to_account_info().try_borrow_mut_lamports()? += u64::from(price*amount);
 
     Ok(())
 }

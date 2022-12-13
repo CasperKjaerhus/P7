@@ -30,7 +30,7 @@ pub struct SendBid<'info> {
     #[account(
         init,
         payer = consumer,
-        space = 8 + 2 + 2 + 2 + 8 + 1 + 32,
+        space = 8 + 2 + 2 + 2 + 8 + 1 + 1 + 32,
         seeds = [b"bid", consumer.key().as_ref(), &[bid_id]], bump 
     )]
     pub bid: Account<'info, Bid>,

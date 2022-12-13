@@ -13,7 +13,7 @@ describe('Inject Energy', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.EnergyInjection as Program<EnergyMarket>;
+    const program = anchor.workspace.EnergyMarket as Program<EnergyMarket>;
 
     // PDA's are retrieved during before()
     let smartpowerstoragePDA: anchor.web3.PublicKey;
