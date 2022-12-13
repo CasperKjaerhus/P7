@@ -9,8 +9,6 @@ declare_id!("FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3");
 
 #[program]
 pub mod energy_market {
-    use anchor_lang::accounts;
-
     use super::*;
 
     pub fn initialize_smart_power_storage(ctx: Context<InitializeSmartPowerStorage>) -> Result<()> {

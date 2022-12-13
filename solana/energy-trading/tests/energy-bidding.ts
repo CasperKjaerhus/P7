@@ -87,6 +87,9 @@ describe('Energy bidding', () => {
     });
 
     it('Release cash to target user', async () => {
+        const target = anchor.web3.Keypair.generate();
+        await airdropSolToKey(target.publicKey, 100); // We need to airdrop to keep the account rent-exempt, otherwise no money can be sent to or from it.
+
         const [bid] = await PublicKey
         .findProgramAddress(
             [
@@ -97,9 +100,6 @@ describe('Energy bidding', () => {
             program.programId
         );
 
-        const consumerBalanceBefore = await provider.connection.getBalance(consumer.publicKey);
-        const bidBalanceBefore = await provider.connection.getBalance(bid);
-
         const [amount, price] = [10, 5]
         await program.methods
             .sendBid(3, amount, price, 1)
@@ -109,13 +109,15 @@ describe('Energy bidding', () => {
             })
             .signers([consumer])
             .rpc();
-        const bidBalanceInterim = await provider.connection.getBalance(bid);
+
+        const consumerBalanceBefore = await provider.connection.getBalance(consumer.publicKey);
 
         let txn = await program.methods
             .releaseCash(amount,price)
             .accounts({
                 bidAccount: bid,
-                target: consumer.publicKey,
+                target: target.publicKey,
+                consumer: consumer.publicKey,
             })
             .signers([consumer])
             .transaction();
@@ -125,18 +127,9 @@ describe('Energy bidding', () => {
         const transFee = await txn.getEstimatedFee(provider.connection);
         await anchor.web3.sendAndConfirmTransaction(provider.connection, txn, [consumer]);
 
-        const bidBalanceAfter = await provider.connection.getBalance(bid);
         const consumerBalanceAfter = await provider.connection.getBalance(consumer.publicKey);
 
-        console.log("The cost of my ass: ", consumerBalanceAfter - consumerBalanceBefore);
-        console.log("Calculated cost of ass: ", transFee);
-        console.log(`bil sol start: ${bidBalanceBefore}`);
-        console.log(`bid sol interrim: ${bidBalanceInterim} -- Change: ${bidBalanceInterim - bidBalanceBefore}`)
-        console.log(`bid sol now: ${bidBalanceAfter} -- Change: ${bidBalanceAfter - bidBalanceInterim}`);
-        
-        console.log(`\nDifference: ${bidBalanceBefore - bidBalanceAfter}`);
-
-        
+        expect(consumerBalanceBefore - consumerBalanceAfter).to.be.equal(transFee); 
     });
 
 });
