@@ -56,7 +56,7 @@ describe('Energy bidding', () => {
     });
 
     it('Consumer executes sendBid and pays lamports to Bid account', async () => {
-        const transactionFee = 1280640;
+        const transactionFee = 1224960;
         const [bid] = await PublicKey
         .findProgramAddress(
             [
@@ -97,25 +97,46 @@ describe('Energy bidding', () => {
             program.programId
         );
 
-        console.log(bid.toString());
+        const consumerBalanceBefore = await provider.connection.getBalance(consumer.publicKey);
+        const bidBalanceBefore = await provider.connection.getBalance(bid);
 
+        const [amount, price] = [10, 5]
         await program.methods
-            .sendBid(3, 10, 5, 1)
+            .sendBid(3, amount, price, 1)
             .accounts({
                 bid: bid,
                 consumer: consumer.publicKey,
             })
             .signers([consumer])
             .rpc();
+        const bidBalanceInterim = await provider.connection.getBalance(bid);
 
-        await program.methods
-            .releaseCash(5,1)
+        let txn = await program.methods
+            .releaseCash(amount,price)
             .accounts({
                 bidAccount: bid,
                 target: consumer.publicKey,
             })
             .signers([consumer])
-            .rpc();
+            .transaction();
+        
+        txn.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
+        txn.feePayer = consumer.publicKey;
+        const transFee = await txn.getEstimatedFee(provider.connection);
+        await anchor.web3.sendAndConfirmTransaction(provider.connection, txn, [consumer]);
+
+        const bidBalanceAfter = await provider.connection.getBalance(bid);
+        const consumerBalanceAfter = await provider.connection.getBalance(consumer.publicKey);
+
+        console.log("The cost of my ass: ", consumerBalanceAfter - consumerBalanceBefore);
+        console.log("Calculated cost of ass: ", transFee);
+        console.log(`bil sol start: ${bidBalanceBefore}`);
+        console.log(`bid sol interrim: ${bidBalanceInterim} -- Change: ${bidBalanceInterim - bidBalanceBefore}`)
+        console.log(`bid sol now: ${bidBalanceAfter} -- Change: ${bidBalanceAfter - bidBalanceInterim}`);
+        
+        console.log(`\nDifference: ${bidBalanceBefore - bidBalanceAfter}`);
+
+        
     });
 
 });

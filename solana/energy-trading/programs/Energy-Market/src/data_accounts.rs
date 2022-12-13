@@ -15,10 +15,10 @@ pub struct EnergyTokenStorage {
 
 #[account]
 pub struct Bid {
-    pub consumer: Pubkey,
-    pub energy_demand: u16,
-    pub bid_value: u16,
-    pub auction_id: u16,
-    pub bid_id: u8,
-    pub bump: u8,
+    pub consumer: Pubkey, // 32
+    pub energy_demand: u16, // 2
+    pub bid_value: u16, // 2
+    pub auction_id: u16, // 2
+    pub bid_id: u8, // 1
+    pub bump: u8, // 1
 }

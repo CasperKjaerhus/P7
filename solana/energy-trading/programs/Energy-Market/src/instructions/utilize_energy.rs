@@ -1,13 +1,13 @@
 use anchor_lang::prelude::*;
 use crate::data_accounts::*;
-use crate::errors::EnergyInjectionErrors;
+use crate::errors::EnergyMarketErrors;
 
 pub fn utilize_energy(ctx: Context<UtilizeEnergyContext>, amount: u16) -> Result<()> {
     // Check if user has enough energy tokens
-    require!(ctx.accounts.energy_token_storage.num_tokens >= amount, EnergyInjectionErrors::NotEnoughEnergyTokens);
+    require!(ctx.accounts.energy_token_storage.num_tokens >= amount, EnergyMarketErrors::NotEnoughEnergyTokens);
 
     // Check if smart power storage has enough energy
-    require!(ctx.accounts.smart_power_storage.kwh >= amount, EnergyInjectionErrors::SmartPowerStorageEmpty);
+    require!(ctx.accounts.smart_power_storage.kwh >= amount, EnergyMarketErrors::SmartPowerStorageEmpty);
 
     // Subtract Tokens from account and sps
     ctx.accounts.energy_token_storage.num_tokens -= amount;

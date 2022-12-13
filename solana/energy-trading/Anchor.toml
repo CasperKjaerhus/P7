@@ -3,7 +3,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-energy_market = "DisBezjfPN6rb6YqVx8JRYdaPXA5MzsDeat6NaX6DoHf"
+energy_market = "FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3"
 
 [registry]
 url = "https://api.apr.dev"

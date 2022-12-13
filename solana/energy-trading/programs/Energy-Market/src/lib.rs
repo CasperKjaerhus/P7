@@ -5,10 +5,12 @@ mod instructions;
 mod data_accounts;
 mod errors;
 
-declare_id!("DisBezjfPN6rb6YqVx8JRYdaPXA5MzsDeat6NaX6DoHf");
+declare_id!("FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3");
 
 #[program]
 pub mod energy_market {
+    use anchor_lang::accounts;
+
     use super::*;
 
     pub fn initialize_smart_power_storage(ctx: Context<InitializeSmartPowerStorage>) -> Result<()> {
@@ -34,5 +36,4 @@ pub mod energy_market {
     pub fn release_cash(ctx: Context<ReleaseCash>, amount: u16, price: u16) -> Result<()> {
         release_cash::release_cash(ctx, amount, price)
     }
-
 }
