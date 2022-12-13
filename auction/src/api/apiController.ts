@@ -5,16 +5,19 @@ import {
     Route,
     SuccessResponse,
 } from "tsoa";
-//import {  } from "../../build/solana/energy-trading/target/types/energy_injection";
-import { EnergyInjection } from "../../../solana/energy-trading/target/types/energy_injection"
-import * as anchor from '@project-serum/anchor';
-import { Program } from '@project-serum/anchor';
+//import { EnergyInjection } from "../../../solana/energy-trading/target/types/energy_injection"
+//import * as anchor from '@project-serum/anchor';
+//import { Program } from '@project-serum/anchor';
 import { PublicKey } from '@solana/web3.js';
+import * as web3 from '@solana/web3.js';
 //import { Auction } from '../auction'
 
 //const provider = anchor.AnchorProvider.env()
 //anchor.setProvider(provider);
-const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
+// For development ig...
+//const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
+
+const programId = new PublicKey(web3.PublicKey);
 
 @Route("api")
 export class APIController extends Controller {
@@ -32,9 +35,11 @@ export class APIController extends Controller {
         [this.smartPowerStoragePDA] = await PublicKey
             .findProgramAddress(
                 [
-                    anchor.utils.bytes.utf8.encode("smartpowerstorage")
+                    this.toUint8Array("smartpowerstorage")
+                    //anchor.utils.bytes.utf8.encode("smartpowerstorage")
                 ],
-                program.programId
+                //program.programId
+                programId
             );
 
         return this.smartPowerStoragePDA;
@@ -51,18 +56,25 @@ export class APIController extends Controller {
     }
 
     private keyPairFromPrivateKey(privateKey: String) {
-        const uint8PrivateKey = Uint8Array.from(Array.from(privateKey).map(letter => letter.charCodeAt(0)));
-        return anchor.web3.Keypair.fromSecretKey(uint8PrivateKey);
+        const uint8PrivateKey = this.toUint8Array(privateKey);
+        //const uint8PrivateKey = Uint8Array.from(Array.from(privateKey).map(letter => letter.charCodeAt(0)));
+        return web3.Keypair.fromSecretKey(uint8PrivateKey);
     }
 
-    private async findEnergyTokenPDA(publicKey: anchor.web3.PublicKey) {
+    private toUint8Array(input: String) {
+        return Uint8Array.from(Array.from(input).map(letter => letter.charCodeAt(0)));
+    }
+
+    private async findEnergyTokenPDA(publicKey: web3.PublicKey) {
         return PublicKey
             .findProgramAddress(
                 [
-                    anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                    //anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                    this.toUint8Array("energytokenstorage"),
                     publicKey.toBuffer()
                 ],
-                program.programId
+                //program.programId
+                programId
             );
     }
 
@@ -102,7 +114,6 @@ export class APIController extends Controller {
     public async createEnergyTokenStorage(
         @Query() privateKey: string,
     ): Promise<string> {
-
         const keyPair = this.keyPairFromPrivateKey(privateKey);
         const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
 
@@ -135,7 +146,6 @@ export class APIController extends Controller {
         @Query() privateKey: string,
         @Query() energySupply: number
     ): Promise<string> {
-
         const keyPair = this.keyPairFromPrivateKey(privateKey);
         const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
         this.getSPSPDA();
