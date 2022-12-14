@@ -1,6 +1,19 @@
+function runExperiments() {
+    experimentTpsPaper();
+}
+
+function experimentTpsPaper() {
+    let sendRates: number[] = Array.range(10, 100, 10);
+    sendRates.map(rate => sendTransactions(1, 100, rate));
+    // Save signatures from send transactions
+    // for each transaction, confirmtransaction and count +1 if true.
+    // calculate percentage of sendrate that was written to the ledger
+}
+
+
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
-  }
+}
 
 function generateRandomInteger(max) {
     return Math.floor(Math.random() * max) + 1;
