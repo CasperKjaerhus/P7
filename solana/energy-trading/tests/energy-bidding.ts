@@ -56,7 +56,8 @@ describe('Energy bidding', () => {
     });
 
     it('Consumer executes sendBid and pays lamports to Bid account', async () => {
-        const transactionFee = 1224960;
+        const bidRentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size)
+        const [amount, price] = [10, 5]
         const [bid] = await PublicKey
         .findProgramAddress(
             [
@@ -72,7 +73,7 @@ describe('Energy bidding', () => {
         let consumerBefore = await provider.connection.getBalance(consumer.publicKey);
 
         await program.methods
-            .sendBid(2, 10, 5, 1)
+            .sendBid(2, amount, price, 1)
             .accounts({
                 bid: bid,
                 consumer: consumer.publicKey,
@@ -81,9 +82,8 @@ describe('Energy bidding', () => {
             .rpc();
         
         let consumerNow = await provider.connection.getBalance(consumer.publicKey);
-        let consumerAfter = consumerBefore - (10*5) - transactionFee;
 
-        expect(consumerNow).to.equal(consumerAfter);
+        expect(consumerNow).to.equal(consumerBefore - bidRentExemption - amount*price, "Consumer should pay for the rent exemption and the cost of their demand");
     });
 
     it('Release cash to target user', async () => {
@@ -121,7 +121,8 @@ describe('Energy bidding', () => {
             .signers([consumer])
             .rpc();
 
-        
+        const [consumerInterim, targetInterim, BidInterim] = await getBalances(); // Before balances
+
         const txn = await program.methods
             .releaseCash(amount,price)
             .accounts({
@@ -139,19 +140,19 @@ describe('Energy bidding', () => {
         await anchor.web3.sendAndConfirmTransaction(provider.connection, txn, [consumer]);
 
         const [consumerAfter, targetAfter, bidAfter] = await getBalances(); // Before balances
-        
-        console.log(consumerBefore);
-        console.log(consumerAfter);
 
-        console.log("differce: ", consumerBefore-consumerAfter);
-        // Check that actual transaction fee is equal to calculated one
-        expect(consumerAfter - consumerBefore).to.be.equal(transFee, "Expect transaction fee"); 
+        // Check that the caller only gets withdrawn the transaction fee
+        expect(consumerInterim - consumerAfter).to.be.equal(transFee, "Consumer should only pay exactly the transaction fee");
 
         // Check that money is recieved on target
-        expect(targetAfter - targetBefore).to.be.equal(targetBefore + amount*price);
+        expect(targetAfter - targetBefore).to.be.equal(amount*price, "Money should be recieved on target");
 
         // Check that money is spent on bid
-        
+        expect(BidInterim - bidAfter).to.be.equal(amount*price, "Money should be spent on bid");
+
+        // Check that bid still is exactly rent exempt
+        const rentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size)
+        expect(bidAfter).to.be.equal(rentExemption, "Bid should only have SOL for rent exemption");
     });
 
 });
