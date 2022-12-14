@@ -5,11 +5,20 @@ import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { EnergyMarket } from "../target/types/energy_market";
-
+import { setupAirdropSolToKey } from "./helpers";
 chai.use(chaiAsPromised);
 
 describe('Energy trading', () => {
+    // Get the solana configuration (localnet)
+    const provider = anchor.AnchorProvider.env();
+    anchor.setProvider(provider);
+
+    const program = anchor.workspace.EnergyMarket as Program<EnergyMarket>;
     
+    const prosumer = anchor.web3.Keypair.generate();
+    const consumer = anchor.web3.Keypair.generate();
+    
+    const airdropSolToKey = setupAirdropSolToKey(program);
 
     it('Release cash to target user', async () => {
         const target = anchor.web3.Keypair.generate();

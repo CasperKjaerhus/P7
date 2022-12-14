@@ -16,3 +16,15 @@ export const setupAirdropSolToKey = (program: Program<EnergyMarket>) => {
         });
     }
 }
+
+export const findBidPDA = async (consumer: PublicKey, bidId: number, programId: PublicKey) => {
+    return await PublicKey
+    .findProgramAddress(
+        [
+            anchor.utils.bytes.utf8.encode("bid"),
+            consumer.toBuffer(),
+            new anchor.BN(bidId).toBuffer(),
+        ],
+        programId
+    );
+}
