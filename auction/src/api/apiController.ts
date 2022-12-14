@@ -6,18 +6,30 @@ import {
     SuccessResponse,
 } from "tsoa";
 //import { EnergyInjection } from "../../../solana/energy-trading/target/types/energy_injection"
-//import * as anchor from '@project-serum/anchor';
-//import { Program } from '@project-serum/anchor';
-import { PublicKey } from '@solana/web3.js';
+import idl from '../../../solana/energy-trading/target/idl/energy_injection.json'
+import * as anchor from '@project-serum/anchor';
+import { Provider, Program } from '@project-serum/anchor';
+import { Connection, PublicKey } from '@solana/web3.js';
 import * as web3 from '@solana/web3.js';
+import { useAnchorWallet } from 'solana-wallets-vue';
+
 //import { Auction } from '../auction'
+
+const clusterUrl = ""
+const preflightCommitment = 'processed'
+const commitment = 'processed'
+const programID = new PublicKey(idl.metadata.address);
 
 //const provider = anchor.AnchorProvider.env()
 //anchor.setProvider(provider);
 // For development ig...
 //const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
-const programId = new PublicKey(web3.PublicKey);
+const wallet = useAnchorWallet();
+const connection = new Connection(clusterUrl, commitment);
+const provider = new Provider(connection, wallet.value, { preflightCommitment, commitment });
+const program = new Program(idl, programID, provider);
+//const programId = new PublicKey(web3.PublicKey);
 
 @Route("api")
 export class APIController extends Controller {
@@ -26,6 +38,16 @@ export class APIController extends Controller {
     smartPowerStoragePDA: any; // anchor.web3.PublicKey;
     //TODO: Auction skal ikke tage contructor param
     // auction: Auction = new Auction();
+    connection: any;
+
+    private async getConnection() {
+        if (this.connection != null) {
+            return this.connection
+        }
+
+        this.connection = new web3.Connection(web3.clusterApiUrl("testnet"));
+        return this.connection;
+    }
 
     private async getSPSPDA() {
         if (this.smartPowerStoragePDA != null) {
@@ -35,11 +57,11 @@ export class APIController extends Controller {
         [this.smartPowerStoragePDA] = await PublicKey
             .findProgramAddress(
                 [
-                    this.toUint8Array("smartpowerstorage")
-                    //anchor.utils.bytes.utf8.encode("smartpowerstorage")
+                    //this.toUint8Array("smartpowerstorage")
+                    anchor.utils.bytes.utf8.encode("smartpowerstorage")
                 ],
-                //program.programId
-                programId
+                program.programId
+                //programId
             );
 
         return this.smartPowerStoragePDA;
@@ -69,12 +91,12 @@ export class APIController extends Controller {
         return PublicKey
             .findProgramAddress(
                 [
-                    //anchor.utils.bytes.utf8.encode("energytokenstorage"),
-                    this.toUint8Array("energytokenstorage"),
+                    anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                    //this.toUint8Array("energytokenstorage"),
                     publicKey.toBuffer()
                 ],
-                //program.programId
-                programId
+                program.programId
+                //programId
             );
     }
 
@@ -89,6 +111,7 @@ export class APIController extends Controller {
     public async initialiseSPS(): Promise<string> {
 
         this.getSPSPDA();
+        this.getConnection();
 
         try {
             program.methods.initSps().accounts({
