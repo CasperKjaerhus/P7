@@ -31,7 +31,7 @@ pub mod energy_market {
         send_bid::send_bid(ctx, bid_id, energy_demand, bid_value, auction_id)
     }
 
-    pub fn release_cash(ctx: Context<ReleaseCash>, amount: u16, price: u16) -> Result<()> {
-        release_cash::release_cash(ctx, amount, price)
+    pub fn execute_trade(ctx: Context<ExecuteTrade>, amount: u16, price: u16) -> Result<()> {
+        execute_trade::execute_trade(ctx, amount, price)
     }
 }

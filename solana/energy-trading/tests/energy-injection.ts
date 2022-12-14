@@ -5,6 +5,7 @@ import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { EnergyMarket } from "../target/types/energy_market";
+import { setupAirdropSolToKey } from "./helpers";
 
 chai.use(chaiAsPromised);
 
@@ -21,17 +22,7 @@ describe('Inject Energy', () => {
 
     const prosumer = anchor.web3.Keypair.generate();
     
-    const airdropSolToKey = async (key: PublicKey, amount: number) => {
-
-        const sig = await program.provider.connection.requestAirdrop(key, amount * anchor.web3.LAMPORTS_PER_SOL);
-        const blockhashLatest = await program.provider.connection.getLatestBlockhash();
-
-        return program.provider.connection.confirmTransaction({
-            blockhash: blockhashLatest.blockhash,
-            lastValidBlockHeight: blockhashLatest.lastValidBlockHeight,
-            signature: sig
-        });
-    }
+    const airdropSolToKey = setupAirdropSolToKey(program);
 
     before(async () => {
         [smartpowerstoragePDA] = await PublicKey

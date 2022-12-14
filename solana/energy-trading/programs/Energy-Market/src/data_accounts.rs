@@ -8,6 +8,7 @@ pub struct SmartPowerStorage {
 
 #[account]
 pub struct EnergyTokenStorage {
+    pub owner: Pubkey,
     pub num_tokens: u16,
     pub tokens_for_sale: u16,
     pub bump: u8,

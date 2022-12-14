@@ -7,5 +7,9 @@ pub enum EnergyMarketErrors {
     #[msg("The Smart Power Storage is empty!")]
     SmartPowerStorageEmpty,
     #[msg("There is not enough lamports on account")]
-    NotEnoughLamports
+    NotEnoughLamports,
+    #[msg("Energy demand has already been met")]
+    EnergyDemandAlreadyMet,
+    #[msg("Seller Does not have enough energy tokens for sale!")]
+    NotEnoughEnergyTokensForSale
 }
