@@ -11,7 +11,6 @@ pub fn execute_trade(ctx: Context<ExecuteTrade>, amount: u16, price: u16) -> Res
 
     // Require that there is enough money on the bid account.
     require!(**bid_account.to_account_info().try_borrow_lamports()? >= u64::from(price*amount), EnergyMarketErrors::NotEnoughLamports);
-
     // Require that demand is above or equal to amount transfering
     require!(bid_account.energy_demand >= amount, EnergyMarketErrors::EnergyDemandAlreadyMet);
 
@@ -43,7 +42,8 @@ pub fn execute_trade(ctx: Context<ExecuteTrade>, amount: u16, price: u16) -> Res
 
 #[derive(Accounts)]
 pub struct ExecuteTrade<'info> {
-    #[account(mut,
+    #[account(
+        mut,
         seeds = [b"bid", consumer.key().as_ref(), &[bid_account.bid_id]], bump = bid_account.bump,
         has_one = consumer
     )]
@@ -64,6 +64,7 @@ pub struct ExecuteTrade<'info> {
     #[account(mut)]
     pub prosumer: UncheckedAccount<'info>,
     /// CHECK: We only use this as to verify it owns the bid account and token storage, and therefore need no verification of this account.
+    #[account(mut)]
     pub consumer: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 }

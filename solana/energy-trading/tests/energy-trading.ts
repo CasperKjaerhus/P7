@@ -17,13 +17,73 @@ describe('Energy trading', () => {
     
     const prosumer = anchor.web3.Keypair.generate();
     const consumer = anchor.web3.Keypair.generate();
-    
+
+    let prosumerTokenStorage: PublicKey;
+    let consumerTokenStorage: PublicKey;
+
     const airdropSolToKey = setupAirdropSolToKey(program);
 
-    it('Release cash to target user', async () => {
-        const target = anchor.web3.Keypair.generate();
-        await airdropSolToKey(target.publicKey, 100); // We need to airdrop to keep the account rent-exempt, otherwise no money can be sent to or from it.
+    before(async () => {
+        await airdropSolToKey(prosumer.publicKey, 10);
+        await airdropSolToKey(consumer.publicKey, 10);
 
+        const [smartpowerstoragePDA] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("smartpowerstorage")
+            ],
+            program.programId
+        );
+
+        [prosumerTokenStorage] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                prosumer.publicKey.toBuffer()
+            ],
+            program.programId
+        );
+
+        [consumerTokenStorage] = await PublicKey
+        .findProgramAddress(
+            [
+                anchor.utils.bytes.utf8.encode("energytokenstorage"),
+                consumer.publicKey.toBuffer()
+            ],
+            program.programId
+        );
+
+        await program.methods
+            .createEnergyTokenStorage()
+            .accounts({
+                prosumer: prosumer.publicKey,
+                energyTokenStorage: prosumerTokenStorage
+            })
+            .signers([prosumer])
+            .rpc();
+
+        await program.methods
+            .createEnergyTokenStorage()
+            .accounts({
+                prosumer: consumer.publicKey,
+                energyTokenStorage: consumerTokenStorage
+            })
+            .signers([consumer])
+            .rpc();
+
+        await program.methods
+            .sendInjection(10)
+            .accounts({
+                prosumer: prosumer.publicKey,
+                smartPowerStorage: smartpowerstoragePDA,
+                energyTokenStorage: prosumerTokenStorage,
+            })
+            .signers([prosumer])
+            .rpc();
+    })
+    
+
+    it('Execute a trade', async () => {
         const [bid] = await PublicKey
         .findProgramAddress(
             [
@@ -34,10 +94,10 @@ describe('Energy trading', () => {
             program.programId
         );
 
-        const getBalances = async () => { // Quick and dirty helper function to get all balances.
+        const getBalances = () => { // Quick and dirty helper function to get all balances.
             return Promise.all([
                 provider.connection.getBalance(consumer.publicKey), 
-                provider.connection.getBalance(target.publicKey),
+                provider.connection.getBalance(prosumer.publicKey),
                 provider.connection.getBalance(bid),
             ]);
         }
@@ -54,7 +114,7 @@ describe('Energy trading', () => {
             })
             .signers([consumer])
             .transaction();
-        
+
         txnSendBid.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
         txnSendBid.feePayer = consumer.publicKey;
         const transFeeSendBid = await txnSendBid.getEstimatedFee(provider.connection);
@@ -72,18 +132,20 @@ describe('Energy trading', () => {
             .executeTrade(amount, price)
             .accounts({
                 bidAccount: bid,
-                prosumer: target.publicKey,
+                prosumer: prosumer.publicKey,
                 consumer: consumer.publicKey,
+                consumerEnergyTokenStorage: consumerTokenStorage,
+                prosumerEnergyTokenStorage: prosumerTokenStorage
             })
-            .signers([consumer])
+            .signers([])
             .transaction();
         
         txnReleaseCash.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
         txnReleaseCash.feePayer = consumer.publicKey;
         const transFeeReleaseCash = await txnReleaseCash.getEstimatedFee(provider.connection);
-        
-        await anchor.web3.sendAndConfirmTransaction(provider.connection, txnReleaseCash, [consumer]);
 
+        await anchor.web3.sendAndConfirmTransaction(provider.connection, txnReleaseCash, [consumer]);
+  
         const [consumerAfter, targetAfter, bidAfter] = await getBalances(); // Before balances
 
         // Check that the caller only gets withdrawn the transaction fees
@@ -98,11 +160,8 @@ describe('Energy trading', () => {
 
     it("Do not close bid account if demand not met", async () => {
         const bidRentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size)
-        const target = anchor.web3.Keypair.generate();
         const auctioneer = anchor.web3.Keypair.generate();
 
-        await airdropSolToKey(target.publicKey, 100); // We need to airdrop to keep the account rent-exempt, otherwise no money can be sent to or from it.
-        await airdropSolToKey(auctioneer.publicKey, 100);
         const [bid] = await PublicKey
         .findProgramAddress(
             [
@@ -129,8 +188,10 @@ describe('Energy trading', () => {
             .executeTrade(amount-1, price)
             .accounts({
                 bidAccount: bid,
-                prosumer: target.publicKey,
+                prosumer: prosumer.publicKey,
                 consumer: consumer.publicKey,
+                consumerEnergyTokenStorage: consumerTokenStorage,
+                prosumerEnergyTokenStorage: prosumerTokenStorage
             })
             .signers([])
             .transaction();
