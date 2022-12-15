@@ -193,4 +193,8 @@ describe('Inject Energy', () => {
             .signers([prosumer2])
             .rpc()).to.be.rejectedWith("You do not have enough tokens");
     })
+
+    after(async () => {
+
+    })
 });

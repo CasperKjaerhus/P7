@@ -38,8 +38,8 @@ describe('Energy bidding', () => {
     });
 
     it('Consumer executes sendBid and pays lamports to Bid account', async () => {
-        const bidRentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size)
-        const [amount, price] = [10, 5]
+        const bidRentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size);
+        const [amount, price] = [10, 5];
         const [bid] = await findBidPDA(consumer.publicKey, 2, program.programId);
 
         await airdropSolToKey(consumer.publicKey, 100);

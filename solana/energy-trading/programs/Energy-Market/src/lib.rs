@@ -5,7 +5,7 @@ mod instructions;
 mod data_accounts;
 mod errors;
 
-declare_id!("BzSieUDpozMi5B1JK5svRUGVZxxUhTnCsfk6EHTSuwXL");
+declare_id!("FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3");
 
 #[program]
 pub mod energy_market {
@@ -13,6 +13,10 @@ pub mod energy_market {
 
     pub fn initialize_smart_power_storage(ctx: Context<InitializeSmartPowerStorage>) -> Result<()> {
         initialize_smart_power_storage::initialize_smart_power_storage(ctx)
+    }
+
+    pub fn reset_smart_power_storage(ctx: Context<ResetSmartPowerStorage>) -> Result<()> {
+        reset_smart_power_storage::reset_smart_power_storage(ctx)
     }
 
     pub fn create_energy_token_storage(ctx: Context<CreateEnergyTokenStorage>) -> Result<()> {
