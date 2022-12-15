@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 #[account]
 pub struct SmartPowerStorage {
-    pub kwh: u16,
+    pub kwh: u64,
     pub bump: u8,
 }
 

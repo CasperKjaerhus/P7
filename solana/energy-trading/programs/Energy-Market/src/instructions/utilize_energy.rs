@@ -7,11 +7,11 @@ pub fn utilize_energy(ctx: Context<UtilizeEnergyContext>, amount: u16) -> Result
     require!(ctx.accounts.energy_token_storage.num_tokens >= amount, EnergyMarketErrors::NotEnoughEnergyTokens);
 
     // Check if smart power storage has enough energy
-    require!(ctx.accounts.smart_power_storage.kwh >= amount, EnergyMarketErrors::SmartPowerStorageEmpty);
+    require!(ctx.accounts.smart_power_storage.kwh >= u64::from(amount), EnergyMarketErrors::SmartPowerStorageEmpty);
 
     // Subtract Tokens from account and sps
     ctx.accounts.energy_token_storage.num_tokens -= amount;
-    ctx.accounts.smart_power_storage.kwh -= amount;
+    ctx.accounts.smart_power_storage.kwh -= u64::from(amount);
 
     // If for_sale is higher than num_tokens, set for_sale to num_tokens.
     if ctx.accounts.energy_token_storage.tokens_for_sale > ctx.accounts.energy_token_storage.num_tokens {

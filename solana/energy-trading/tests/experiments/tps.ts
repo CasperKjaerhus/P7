@@ -29,7 +29,7 @@ describe('Experiments', () => {
         await airdropSolToKey(consumer.publicKey, 100);
 
         const prosumersCreationArray: Promise<{prosumer: anchor.web3.Keypair, tokenStorage: anchor.web3.PublicKey }>[]  = []
-        for (let i = 0; i < 255; i++){
+        for (let i = 0; i < 750; i++){
             prosumersCreationArray.push(
                 createProsumer(
                     program,
@@ -52,7 +52,7 @@ describe('Experiments', () => {
     });
 
     const tpsToTest = [{
-        tps: 150,
+        tps: 500,
         duration: 20
     }];
     tpsToTest.forEach(({tps, duration}) => {
@@ -66,12 +66,12 @@ describe('Experiments', () => {
             let prmz = [];
             console.time("Transaction Time")
             for(let i = 0; i < totalTransaction; i++){
-                let luckyProsumer = generateRandomInteger(255)-1;
+                let luckyProsumer = generateRandomInteger(750)-1;
                 let prosumer = prosumers[luckyProsumer].prosumer;
 
                 prmz.push(
                     program.methods
-                        .sendInjection(generateRandomInteger(30))
+                        .sendInjection(generateRandomInteger(300))
                         .accounts({
                             prosumer: prosumer.publicKey,
                             smartPowerStorage: smartpowerstoragePDA,
@@ -89,10 +89,9 @@ describe('Experiments', () => {
             console.log(endTransactionCount - startTransactionCount);
             let totalTime = Date.now() - start;
             const expectedTime = duration * 1000;
-            expect(totalTime).to.be.lessThan(expectedTime + 1000);
 
             let confirmations = []
-            for(let transaction of transactions){
+            for (let transaction of transactions) {
                 const blockhashLatest = await program.provider.connection.getLatestBlockhash();
     
                 confirmations.push(program.provider.connection.confirmTransaction({
@@ -103,9 +102,10 @@ describe('Experiments', () => {
             }
 
             await Promise.all(confirmations);
-            totalTime = Date.now() - start;
+            const totalTimeEnd = Date.now() - start;
             console.timeEnd(`TPS @: ${tps}`);
-            console.log(`${totalTransaction} in ${totalTime / 1000}: ${totalTransaction / (totalTime / 1000)}`)
+            console.log(`${totalTransaction} in ${totalTime / 1000}: ${totalTransaction / (totalTimeEnd / 1000)} TPS`)
+            expect(totalTime).to.be.lessThan(expectedTime + 1000);
         })
     })
 

@@ -16,7 +16,7 @@ pub struct InitializeSmartPowerStorage<'info> {
     #[account(
         init,
         payer = initializer,
-        space = 8 + 2 + 1, // Anchor Discriminant + u16 + u8
+        space = 8 + 8 + 1, // Anchor Discriminant + u16 + u8
         seeds = [b"smartpowerstorage"], bump
     )]
     pub smart_power_storage: Account<'info, SmartPowerStorage>,
