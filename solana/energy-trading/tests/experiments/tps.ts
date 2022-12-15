@@ -3,11 +3,11 @@ import { Program } from "@project-serum/anchor";
 import { PublicKey } from '@solana/web3.js';
 import { expect } from 'chai';
 import chai from "chai";
-import chaiAsPromised from "chai-as-promised";
-import { EnergyMarket } from "../target/types/energy_market";
-import { findBidPDA } from "../tests/helpers"
+//import chaiAsPromised from "chai-as-promised";
+import { EnergyMarket } from "../../target/types/energy_market";
+import { findBidPDA, setupAirdropSolToKey } from "../helpers"
 import { sendTransactions } from "./helpers"
-chai.use(chaiAsPromised);
+//chai.use(chaiAsPromised);
 
 
 describe('Experiments', () => {
@@ -19,16 +19,16 @@ describe('Experiments', () => {
     // PDA's are retrieved during before()
     let smartpowerstoragePDA: anchor.web3.PublicKey;
     let energytokenstoragePDA: anchor.web3.PublicKey;
+    let bid: anchor.web3.PublicKey;
 
     const prosumer = anchor.web3.Keypair.generate();
     const consumer = anchor.web3.Keypair.generate();
-    await airdropSolToKey(consumer.publicKey, 100);
-    await airdropSolToKey(prosumer.publicKey, 100);
     
-    const [bid] = await findBidPDA(consumer.publicKey, 1, program.programId);
     const airdropSolToKey = setupAirdropSolToKey(program);
 
     before(async () => {
+        await airdropSolToKey(consumer.publicKey, 100);
+        await airdropSolToKey(prosumer.publicKey, 100);
         [smartpowerstoragePDA] = await PublicKey
         .findProgramAddress(
             [
@@ -45,32 +45,46 @@ describe('Experiments', () => {
             ],
             program.programId
         );
+
+        await program.methods
+            .createEnergyTokenStorage()
+            .accounts({
+                prosumer: prosumer.publicKey,
+                energyTokenStorage: energytokenstoragePDA
+            })
+            .signers([prosumer])
+            .rpc();
+
     });
 
-    const sendRates = Array.range(10, 100, 10);
+    const sendRates = [100];
     sendRates.forEach(sendRate => {
-        it('TPS @sendRate: ' + data, async () => {
+        it('TPS @sendRate: ' + sendRate, async () => {
             // Do sendRate transactions/seconds for sendRate/10000 iterations 
             const iterations = sendRate/10000;
-            
+            const transactions = [];
+
             const start = Date.now(); 
-            for (i = 0; i < iterations; i++) {
-                sendTransactions(sendRate, [bid, smartpowerstoragePDA, energytokenstoragePDA], [consumer, prosumer]);
+            for (let i = 0; i < iterations; i++) {
+                [bid] = await findBidPDA(consumer.publicKey, i, program.programId);
+                transactions.push(sendTransactions(
+                    sendRate, 
+                    {
+                        bid: bid, 
+                        sps: smartpowerstoragePDA, 
+                        ets: energytokenstoragePDA, 
+                        consumer: consumer, 
+                        prosumer: prosumer
+                    }, 
+                    program
+                ));
             }
+
+            await Promise.all(transactions);
             const totalTime = Date.now() - start;
 
             const expectedTime = 10000/sendRate;
-            expect(totalTime).to.be.lt(expectedTime);
-            // Arrange: Create batch of sendRate random Transactions 
-            // TODO: Actually random transactions 
-            
-
-            // TODO - Act: Send each transaction at random delay/interleaving
-            
-
-            // TODO - Assert: Assert transactions were send within sendRate/10000 sec ?!
-            // End time right after last send transaction 
-        
+            expect(totalTime).to.be.lessThan(expectedTime);
         })
     })
 });
