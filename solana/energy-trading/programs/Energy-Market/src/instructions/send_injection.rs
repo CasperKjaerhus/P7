@@ -3,7 +3,7 @@ use crate::data_accounts::*;
 
 pub fn send_injection(ctx: Context<InjectPowerToStorage>, amount: u16) -> Result<()> {
 
-    ctx.accounts.smart_power_storage.kwh += amount;
+    ctx.accounts.smart_power_storage.kwh += u64::from(amount);
     ctx.accounts.energy_token_storage.num_tokens += amount;
     ctx.accounts.energy_token_storage.tokens_for_sale += amount;
 

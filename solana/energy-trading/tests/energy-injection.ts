@@ -6,6 +6,7 @@ import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
 import { EnergyMarket } from "../target/types/energy_market";
 import { setupAirdropSolToKey } from "./helpers";
+import { BN } from "bn.js";
 
 chai.use(chaiAsPromised);
 
@@ -55,7 +56,10 @@ describe('Inject Energy', () => {
         
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(0)
+        
+        const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
+
+        expect(currentKwh.toNumber()).to.be.equal(0);
     });
 
     it('Create Energy Token Storage', async () => {
@@ -82,13 +86,12 @@ describe('Inject Energy', () => {
         
         await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA)))
             .to.eventually.have.property("numTokens")
-            .to.be.equal(0)
+        
     })
 
     it('Inject Energy', async () => {
 
         const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
-
         await airdropSolToKey(prosumer.publicKey, 10);
         
         await program.methods
@@ -103,7 +106,9 @@ describe('Inject Energy', () => {
 
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(currentKwh+10);
+
+        const {kwh: afterKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
+        expect(afterKwh.toNumber()).to.be.equal(currentKwh.toNumber() + 10);
 
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
             .to.eventually.have.property("numTokens")
@@ -131,7 +136,7 @@ describe('Inject Energy', () => {
 
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(currentKwh);
+        
     });
 
     it('Utilize energy', async () => {
