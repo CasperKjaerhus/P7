@@ -29,7 +29,7 @@ describe('Experiments', () => {
         await airdropSolToKey(consumer.publicKey, 100);
 
         const prosumersCreationArray: Promise<{prosumer: anchor.web3.Keypair, tokenStorage: anchor.web3.PublicKey }>[]  = []
-        for (let i = 0; i < 255; i++){
+        for (let i = 0; i < 1255; i++){
             prosumersCreationArray.push(
                 createProsumer(
                     program,
@@ -52,8 +52,8 @@ describe('Experiments', () => {
     });
 
     const tpsToTest = [{
-        tps: 150,
-        duration: 20
+        tps: 120,
+        duration: 60
     }];
     tpsToTest.forEach(({tps, duration}) => {
         it('TPS @: ' + tps, async () => {
@@ -66,7 +66,7 @@ describe('Experiments', () => {
             let prmz = [];
             console.time("Transaction Time")
             for(let i = 0; i < totalTransaction; i++){
-                let luckyProsumer = generateRandomInteger(255)-1;
+                let luckyProsumer = generateRandomInteger(1255)-1;
                 let prosumer = prosumers[luckyProsumer].prosumer;
 
                 prmz.push(
@@ -108,6 +108,60 @@ describe('Experiments', () => {
             console.log(`${totalTransaction} in ${totalTime / 1000}: ${totalTransaction / (totalTime / 1000)}`)
         })
     })
+
+    const tpsToTest = [{
+        tps: 25,
+        duration: 20
+    }];
+    tpsToTest.forEach(({tps, duration}) => {
+        it('TPS-Scheduled @: ' + tps, async () => {
+            console.time(`TPS @: ${tps}`);
+            const totalTransaction = tps * duration;
+            const startTransactionCount = await provider.connection.getTransactionCount();
+
+            const start = Date.now();
+            let prmz = [];
+            console.time("Transaction Time")
+            for(let i = 0; i < totalTransaction; i++){
+                let luckyProsumer = generateRandomInteger(1255)-1;
+                let prosumer = prosumers[luckyProsumer].prosumer;
+
+                prmz.push(
+                    program.methods
+                        .sendInjection(generateRandomInteger(30))
+                        .accounts({
+                            prosumer: prosumer.publicKey,
+                            smartPowerStorage: smartpowerstoragePDA,
+                            energyTokenStorage: prosumers[luckyProsumer].tokenStorage,
+                        })
+                        .signers([prosumer])
+                        .rpc()
+                ); 
+            }
+
+            let transactions = await Promise.all(prmz);
+
+            console.timeEnd("Transaction Time");  
+
+            let schedule = [];
+            for (transaction of transactions) {
+                schedule.push({transaction, tick: generateRandomInteger(duration*1000)});
+            }
+            schedule.sort((a, b) => a.tick - b.tick);
+
+            let tick = 0;
+            const tickrate = 10;
+            while (tick <= duration) {
+                tick += tickrate;
+                while (schedule[0].tick <= tick) {
+                  transaction = schedule.shift();
+                  transaction.recentBlockhash = (await provider.connection.getLatestBlockhash()).blockhash;
+                  transaction.feePayer = prosumer.publicKey;
+                  anchor.web3.sendAndConfirmTransaction(provider.connection, transaction, [prosumer]);
+                }
+            }
+        )}
+    )}
 
     after(async () => {
         await program.methods.resetSmartPowerStorage().accounts({
