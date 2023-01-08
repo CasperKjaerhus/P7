@@ -75,13 +75,13 @@ export class Auction {
 
             if (bid.demand >= this.sellers[0].supply) {
                 bid.demand -= this.sellers[0].supply; //Consume entire seller-supply
-                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: (winnerPrice+bid.price)/2 }); 
+                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: this.sellers[0].supply, price: winnerPrice }); 
 
                 this.sellers.shift(); //Remove seller, as no supply left
 
             } else {
                 this.sellers[0].supply -= bid.demand;  //Bid is met in its entirety
-                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: bid.demand, price: (winnerPrice+bid.price)/2 });
+                transactions.push({ sellerKey: this.sellers[0].account, buyerKey: bid.account, energy: bid.demand, price: winnerPrice });
                 
                 this.sellers.sort((seller1, seller2) => seller2.supply - seller1.supply); // Sort sellers again, as the supply has changed
                 bid.demand = 0; //To exit while-loop.
