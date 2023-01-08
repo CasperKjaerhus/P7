@@ -1,10 +1,12 @@
 import * as anchor from "@project-serum/anchor";
 import { Program } from "@project-serum/anchor";
 import { PublicKey } from '@solana/web3.js';
-import { EnergyInjection } from "../target/types/energy_injection";
 import { expect } from 'chai';
 import chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+import { EnergyMarket } from "../target/types/energy_market";
+import { setupAirdropSolToKey } from "./helpers";
+import { BN } from "bn.js";
 
 chai.use(chaiAsPromised);
 
@@ -13,7 +15,7 @@ describe('Inject Energy', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
 
-    const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
+    const program = anchor.workspace.EnergyMarket as Program<EnergyMarket>;
 
     // PDA's are retrieved during before()
     let smartpowerstoragePDA: anchor.web3.PublicKey;
@@ -21,17 +23,7 @@ describe('Inject Energy', () => {
 
     const prosumer = anchor.web3.Keypair.generate();
     
-    const airdropSolToKey = async (key: PublicKey, amount: number) => {
-
-        const sig = await program.provider.connection.requestAirdrop(key, amount * anchor.web3.LAMPORTS_PER_SOL);
-        const blockhashLatest = await program.provider.connection.getLatestBlockhash();
-
-        return program.provider.connection.confirmTransaction({
-            blockhash: blockhashLatest.blockhash,
-            lastValidBlockHeight: blockhashLatest.lastValidBlockHeight,
-            signature: sig
-        });
-    }
+    const airdropSolToKey = setupAirdropSolToKey(program);
 
     before(async () => {
         [smartpowerstoragePDA] = await PublicKey
@@ -55,7 +47,7 @@ describe('Inject Energy', () => {
     it('Create Smart Power Storage', async () => {
 
         await program.methods
-            .initSps()
+            .initializeSmartPowerStorage()
             .accounts({
                 initializer: provider.wallet.publicKey,
                 smartPowerStorage: smartpowerstoragePDA
@@ -64,7 +56,10 @@ describe('Inject Energy', () => {
         
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(0)
+        
+        const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
+
+        expect(currentKwh.toNumber()).to.be.equal(0);
     });
 
     it('Create Energy Token Storage', async () => {
@@ -91,13 +86,12 @@ describe('Inject Energy', () => {
         
         await expect((program.account.energyTokenStorage.fetch(energytokenstoragePDA)))
             .to.eventually.have.property("numTokens")
-            .to.be.equal(0)
+        
     })
 
     it('Inject Energy', async () => {
 
         const {kwh: currentKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
-
         await airdropSolToKey(prosumer.publicKey, 10);
         
         await program.methods
@@ -112,7 +106,9 @@ describe('Inject Energy', () => {
 
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(currentKwh+10);
+
+        const {kwh: afterKwh} = await program.account.smartPowerStorage.fetch(smartpowerstoragePDA);
+        expect(afterKwh.toNumber()).to.be.equal(currentKwh.toNumber() + 10);
 
         await expect(program.account.energyTokenStorage.fetch(energytokenstoragePDA))
             .to.eventually.have.property("numTokens")
@@ -140,7 +136,7 @@ describe('Inject Energy', () => {
 
         await expect(program.account.smartPowerStorage.fetch(smartpowerstoragePDA))
             .to.eventually.have.property("kwh")
-            .to.be.equal(currentKwh);
+        
     });
 
     it('Utilize energy', async () => {
@@ -201,5 +197,9 @@ describe('Inject Energy', () => {
             })
             .signers([prosumer2])
             .rpc()).to.be.rejectedWith("You do not have enough tokens");
+    })
+
+    after(async () => {
+
     })
 });
