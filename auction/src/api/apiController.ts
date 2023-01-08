@@ -6,29 +6,29 @@ import {
     SuccessResponse,
 } from "tsoa";
 //import { EnergyInjection } from "../../../solana/energy-trading/target/types/energy_injection"
-import idl from '../../../solana/energy-trading/target/idl/energy_injection.json'
-import * as anchor from '@project-serum/anchor';
-import { Provider, Program } from '@project-serum/anchor';
-import { Connection, PublicKey } from '@solana/web3.js';
-import * as web3 from '@solana/web3.js';
-import { useAnchorWallet } from 'solana-wallets-vue';
+//import idl from '../../../solana/energy-trading/target/idl/energy_injection.json'
+//import * as anchor from '@project-serum/anchor';
+//import { Provider, Program } from '@project-serum/anchor';
+//import { Connection, PublicKey } from '@solana/web3.js';
+//import * as web3 from '@solana/web3.js';
+//import { useAnchorWallet } from 'solana-wallets-vue';
 
 //import { Auction } from '../auction'
 
 const clusterUrl = ""
 const preflightCommitment = 'processed'
 const commitment = 'processed'
-const programID = new PublicKey(idl.metadata.address);
+//const programID = new PublicKey(idl.metadata.address);
 
 //const provider = anchor.AnchorProvider.env()
 //anchor.setProvider(provider);
 // For development ig...
 //const program = anchor.workspace.EnergyInjection as Program<EnergyInjection>;
 
-const wallet = useAnchorWallet();
-const connection = new Connection(clusterUrl, commitment);
-const provider = new Provider(connection, wallet.value, { preflightCommitment, commitment });
-const program = new Program(idl, programID, provider);
+//const wallet = useAnchorWallet();
+//const connection = new Connection(clusterUrl, commitment);
+//const provider = new Provider(connection, wallet.value, { preflightCommitment, commitment });
+//const program = new Program(idl, programID, provider);
 //const programId = new PublicKey(web3.PublicKey);
 
 @Route("api")
@@ -45,7 +45,7 @@ export class APIController extends Controller {
             return this.connection
         }
 
-        this.connection = new web3.Connection(web3.clusterApiUrl("testnet"));
+        this.connection = "F" //new web3.Connection(web3.clusterApiUrl("testnet"));
         return this.connection;
     }
 
@@ -54,6 +54,7 @@ export class APIController extends Controller {
             return this.smartPowerStoragePDA;
         }
 
+        /*
         [this.smartPowerStoragePDA] = await PublicKey
             .findProgramAddress(
                 [
@@ -64,7 +65,7 @@ export class APIController extends Controller {
                 //programId
             );
 
-        return this.smartPowerStoragePDA;
+        return this.smartPowerStoragePDA;*/
     }
 
     private errorResponse(e: any) {
@@ -80,15 +81,15 @@ export class APIController extends Controller {
     private keyPairFromPrivateKey(privateKey: String) {
         const uint8PrivateKey = this.toUint8Array(privateKey);
         //const uint8PrivateKey = Uint8Array.from(Array.from(privateKey).map(letter => letter.charCodeAt(0)));
-        return web3.Keypair.fromSecretKey(uint8PrivateKey);
+        return ("F" + uint8PrivateKey); //web3.Keypair.fromSecretKey(uint8PrivateKey);
     }
 
     private toUint8Array(input: String) {
         return Uint8Array.from(Array.from(input).map(letter => letter.charCodeAt(0)));
     }
 
-    private async findEnergyTokenPDA(publicKey: web3.PublicKey) {
-        return PublicKey
+    private async findEnergyTokenPDA(publicKey: String) {//: web3.PublicKey) {
+        /*return PublicKey
             .findProgramAddress(
                 [
                     anchor.utils.bytes.utf8.encode("energytokenstorage"),
@@ -98,6 +99,7 @@ export class APIController extends Controller {
                 program.programId
                 //programId
             );
+        */
     }
 
     /**
@@ -113,7 +115,7 @@ export class APIController extends Controller {
         this.getSPSPDA();
         this.getConnection();
 
-        try {
+        /* try {
             program.methods.initSps().accounts({
                 // TODO: Auctioneer skal betale for init, noget omkring provider skal auctioneer så local keys
                 //initializer: provider.wallet.publicKey,
@@ -122,6 +124,7 @@ export class APIController extends Controller {
         } catch (e) {
             return this.errorResponse(e);
         }
+        */
 
         this.setStatus(200);
         return "SPS intialised correctly";
@@ -137,9 +140,11 @@ export class APIController extends Controller {
     public async createEnergyTokenStorage(
         @Query() privateKey: string,
     ): Promise<string> {
-        const keyPair = this.keyPairFromPrivateKey(privateKey);
-        const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
 
+        const keyPair = this.keyPairFromPrivateKey(privateKey);
+        //const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
+
+        /*
         try {
             let res = await program.methods
                 .createEnergyTokenStorage()
@@ -154,7 +159,8 @@ export class APIController extends Controller {
 
         } catch (e) {
             return this.errorResponse(e);
-        }
+        }*/
+        return "F";
     }
 
     /**
@@ -169,10 +175,11 @@ export class APIController extends Controller {
         @Query() privateKey: string,
         @Query() energySupply: number
     ): Promise<string> {
-        const keyPair = this.keyPairFromPrivateKey(privateKey);
-        const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
+        //const keyPair = this.keyPairFromPrivateKey(privateKey);
+        //const [energyTokenStoragePDA] = await this.findEnergyTokenPDA(keyPair.publicKey);
         this.getSPSPDA();
 
+        /*
         try {
             let res = program.methods.sendInjection(energySupply)
                 .accounts({
@@ -186,7 +193,8 @@ export class APIController extends Controller {
 
         } catch (e) {
             return this.errorResponse(e);
-        }
+        }*/
+        return "F";
     }
 
 
