@@ -5,7 +5,7 @@ mod instructions;
 mod data_accounts;
 mod errors;
 
-declare_id!("BzSieUDpozMi5B1JK5svRUGVZxxUhTnCsfk6EHTSuwXL");
+declare_id!("FT6mST1GsDeRTDfu7gHJpJPdNMNMGy8KJY6kASf6ARo3");
 
 #[program]
 pub mod energy_market {

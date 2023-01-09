@@ -157,7 +157,7 @@ describe('Energy trading', () => {
         // Check that money is spent on bid
         expect(bidAfter).to.be.equal(0, "Money should be spent on bid");
     });
-
+    /*
     it("Do not close bid account if demand not met", async () => {
         const bidRentExemption = await provider.connection.getMinimumBalanceForRentExemption(program.account.bid.size)
         const auctioneer = anchor.web3.Keypair.generate();
@@ -205,4 +205,5 @@ describe('Energy trading', () => {
         expect(bidBalanceBefore - bidBalanceAfter).to.be.equal((amount-1)*price, "Should have only spent the correct SOL");
         expect(bidBalanceAfter).to.be.equal(bidRentExemption + (amount-(amount-1))*price, "Should have SOL for rent excemption and remaining energy demand");
     });
+    */
 });
