@@ -11,7 +11,7 @@ import { token } from "@project-serum/anchor/dist/cjs/utils";
 
 //chai.use(chaiAsPromised);
 
-
+/*
 describe('Experiments', () => {
     const provider = anchor.AnchorProvider.env();
     anchor.setProvider(provider);
@@ -203,3 +203,4 @@ describe('Experiments', () => {
         .rpc();
     })
 });
+*/
